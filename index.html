@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>연구실 좌석 관리</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f0f2f8;
+  --surface:#fff;
+  --border:#e4e7ef;
+  --primary:#4B44A8;--primary-light:#EEEDFE;--primary-border:#AFA9EC;
+  --text:#18181b;--text2:#52525b;--text3:#a1a1aa;
+  --danger:#dc2626;--danger-light:#fef2f2;
+  --orange:#d97706;--orange-light:#fffbeb;
+  --green:#16a34a;
+  --radius:12px;--radius-sm:8px;
+  --shadow:0 1px 4px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.04);
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Pretendard','Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* ── 레이아웃 ── */
+.app{max-width:1040px;margin:0 auto;padding:28px 20px}
+.sticky-top{position:sticky;top:0;z-index:50;background:var(--bg);padding-top:28px;margin-top:-28px}
+.tab-section{margin-top:0}
+
+/* ── 헤더 ── */
+.header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+.header-left h1{font-size:22px;font-weight:700;letter-spacing:-.4px;color:var(--text)}
+.header-left p{font-size:12px;color:var(--text3);margin-top:3px}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--text2);align-items:center;background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:6px 14px}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px;vertical-align:middle}
+
+/* ── 공지사항 ── */
+.notice-section{margin-bottom:20px}
+.notice-section-title{font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px;padding-left:2px}
+.notice-grid{display:flex;flex-direction:column;gap:6px}
+.nc{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.nc-header{display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer;user-select:none;transition:background .15s}
+.nc-header:hover{background:#fafafa}
+.nc-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.nc-icon.asset{background:#EEEDFE;color:var(--primary)}
+.nc-icon.info{background:#dcfce7;color:var(--green)}
+.nc-icon.ip{background:#fff7ed;color:var(--orange)}
+.nc-meta{flex:1;min-width:0}
+.nc-title{font-size:13px;font-weight:600;color:var(--text)}
+.nc-desc{font-size:11px;color:var(--text3);margin-top:1px}
+.nc-chevron{font-size:11px;color:var(--text3);transition:transform .22s;flex-shrink:0}
+.nc-chevron.open{transform:rotate(180deg)}
+.nc-body{max-height:0;overflow:hidden;transition:max-height .3s ease}
+.nc-body.open{max-height:500px}
+.nc-inner{padding:0 16px 14px;border-top:1px solid var(--border)}
+.nc-list{list-style:none;display:flex;flex-direction:column;gap:5px;padding-top:10px}
+.nc-list li{font-size:12.5px;color:var(--text2);line-height:1.65;display:flex;gap:8px;align-items:flex-start}
+.nc-list li::before{content:'•';color:var(--text3);flex-shrink:0;margin-top:1px}
+.nc-list li.warn{color:var(--danger);font-weight:600}
+.nc-list li.warn::before{content:'⚠️';font-size:11px}
+.nc-list li.sub{color:var(--text3);font-size:12px;padding-left:16px}
+.nc-list li.sub::before{content:'↳'}
+.nc-list li strong{color:var(--text);font-weight:600}
+.nc-list li a{color:var(--primary);text-decoration:none}
+.nc-list li a:hover{text-decoration:underline}
+.nc-list{list-style:none;display:flex;flex-direction:column;gap:5px;padding-top:12px}
+.nc-list li{font-size:12.5px;color:var(--text2);line-height:1.65;display:flex;gap:8px;align-items:flex-start}
+.nc-list li::before{content:'•';color:var(--text3);flex-shrink:0;margin-top:1px}
+.nc-list li.warn{color:var(--danger);font-weight:600}
+.nc-list li.warn::before{content:'⚠️';font-size:11px}
+.nc-list li.sub{color:var(--text3);font-size:12px;padding-left:16px}
+.nc-list li.sub::before{content:'↳'}
+.nc-list li strong{color:var(--text);font-weight:600}
+.nc-list li a{color:var(--primary);text-decoration:none}
+.nc-list li a:hover{text-decoration:underline}
+
+/* ── 연구실 탭 ── */
+.room-tabs-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;margin-bottom:16px;box-shadow:var(--shadow);position:sticky;top:0;z-index:40}
+.room-tabs{display:flex;flex-wrap:wrap;gap:5px}
+.rtab{font-size:12px;padding:5px 13px;border-radius:999px;border:1px solid transparent;background:transparent;color:var(--text2);cursor:pointer;transition:all .15s;position:relative;font-weight:500}
+.rtab:hover{background:var(--bg);border-color:var(--border)}
+.rtab.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.rtab.remote.active{background:var(--green);border-color:var(--green)}
+.rtab .eb{position:absolute;top:-5px;right:-5px;background:var(--danger);color:#fff;font-size:9px;border-radius:999px;min-width:15px;height:15px;display:flex;align-items:center;justify-content:center;padding:0 3px;font-weight:700}
+
+/* ── 통계 ── */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.stat{background:var(--surface);border-radius:var(--radius);padding:14px 16px;text-align:center;border:1px solid var(--border);box-shadow:var(--shadow)}
+.stat-val{font-size:24px;font-weight:700;letter-spacing:-.5px}
+.stat-lbl{font-size:11px;color:var(--text3);margin-top:3px;font-weight:500}
+
+/* ── 툴바 ── */
+.toolbar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
+.tool-btn{font-size:12px;padding:6px 14px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;display:flex;align-items:center;gap:5px;font-weight:500;transition:all .15s;box-shadow:var(--shadow)}
+.tool-btn:hover{background:var(--bg)}
+.tool-btn.danger-mode{background:var(--danger-light);border-color:var(--danger);color:var(--danger)}
+.tool-btn.accent{background:var(--primary);color:#fff;border-color:var(--primary);box-shadow:none}
+.tool-btn.accent:hover{background:#3a3490}
+.hint{font-size:11px;color:var(--text3);margin-right:4px}
+
+/* ── 배치도 ── */
+.canvas-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;overflow:auto;min-height:300px;box-shadow:var(--shadow)}
+.canvas{position:relative;min-height:260px}
+.seat{position:absolute;width:122px;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;cursor:grab;user-select:none;transition:box-shadow .15s,border-color .15s;box-shadow:var(--shadow)}
+.seat:active{cursor:grabbing}
+.seat.occ{border-color:var(--primary-border);background:var(--primary-light)}
+.seat.pub{border-color:#fbbf24;background:var(--orange-light)}
+.seat.empty{opacity:.55}
+.seat.dragging{opacity:.9;z-index:100;box-shadow:0 8px 24px rgba(0,0,0,.14)}
+.seat.del-mode{border-color:var(--danger)!important;background:var(--danger-light)!important;cursor:pointer}
+.seat-type{font-size:9px;font-weight:700;letter-spacing:.06em;margin-bottom:4px;text-transform:uppercase;color:var(--text3)}
+.seat.occ .seat-type{color:var(--primary)}
+.seat.pub .seat-type{color:var(--orange)}
+.seat-label{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text)}
+.seat-sub{font-size:10px;color:var(--text3);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ── 전체 현황 ── */
+.ov-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.ov-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;cursor:pointer;transition:all .18s;box-shadow:var(--shadow)}
+.ov-card:hover{border-color:var(--primary);transform:translateY(-1px);box-shadow:0 4px 16px rgba(75,68,168,.12)}
+.ov-card.remote-card:hover{border-color:var(--green)}
+.ov-name{font-size:13px;font-weight:700;margin-bottom:10px;color:var(--text)}
+.ov-bar-bg{background:var(--bg);border-radius:999px;height:5px;margin-bottom:7px;overflow:hidden}
+.ov-bar{background:var(--primary);border-radius:999px;height:5px;transition:width .4s}
+.ov-nums{font-size:12px;color:var(--text2);font-weight:500}
+
+/* ── 로그 ── */
+.log-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.log-toolbar{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:10px;background:#fafafa}
+.log-toolbar h3{font-size:14px;font-weight:700}
+.search-box{font-size:12px;padding:7px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);outline:none;width:210px;background:var(--surface);transition:border-color .15s}
+.search-box:focus{border-color:var(--primary)}
+.log-table-wrap{overflow-x:auto}
+.log-table{width:100%;border-collapse:collapse;font-size:13px}
+.log-table th{text-align:left;padding:10px 16px;color:var(--text3);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--border);white-space:nowrap;background:#fafafa}
+.log-table td{padding:11px 16px;border-bottom:1px solid var(--border);color:var(--text)}
+.log-table tr:last-child td{border-bottom:none}
+.log-table tr:hover td{background:#fafafa}
+.log-empty{text-align:center;padding:48px;color:var(--text3);font-size:13px}
+.edit-link{font-size:11px;color:var(--primary);cursor:pointer;font-weight:600;text-decoration:none;padding:3px 8px;border-radius:5px;background:var(--primary-light)}
+.edit-link:hover{background:var(--primary-border);color:#fff}
+
+/* ── 모달 ── */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(2px)}
+.modal-bg.open{display:flex}
+.modal{background:var(--surface);border-radius:16px;padding:26px;width:340px;max-width:92vw;box-shadow:0 12px 40px rgba(0,0,0,.18);max-height:90vh;overflow-y:auto}
+.modal h3{font-size:16px;font-weight:700;margin-bottom:3px;color:var(--text)}
+.modal-sub{font-size:12px;color:var(--text3);margin-bottom:18px}
+.field{margin-bottom:13px}
+.field label{font-size:12px;color:var(--text2);display:block;margin-bottom:5px;font-weight:600}
+.field input,.field select,.field textarea{width:100%;font-size:13px;padding:9px 11px;border:1.5px solid var(--border);border-radius:var(--radius-sm);outline:none;transition:border-color .15s;font-family:inherit;color:var(--text);background:var(--surface)}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--primary)}
+.field input.err{border-color:var(--danger)}
+.field textarea{resize:vertical;min-height:64px}
+.req{color:var(--danger)}
+.err-msg{font-size:11px;color:var(--danger);margin-top:10px;min-height:16px;font-weight:500}
+.modal-actions{display:flex;gap:8px;margin-top:18px;justify-content:flex-end}
+.btn{font-size:13px;padding:8px 18px;border-radius:var(--radius-sm);cursor:pointer;border:1.5px solid var(--border);background:var(--surface);color:var(--text);font-weight:600;transition:all .15s}
+.btn:hover{background:var(--bg)}
+.btn.primary{background:var(--primary);color:#fff;border-color:var(--primary)}
+.btn.primary:hover{background:#3a3490}
+.btn.primary:disabled{background:#c5c3e8;border-color:#c5c3e8;cursor:not-allowed}
+.btn.danger{color:var(--danger);border-color:#fca5a5}
+.btn.danger:hover{background:var(--danger-light)}
+.loading{text-align:center;padding:60px;color:var(--text3);font-size:13px}
+</style>
+</head>
+<body>
+<div class="app">
+
+<div class="sticky-top">
+  <!-- 헤더 -->
+  <div class="header">
+    <div class="header-left">
+      <h1>연구실 좌석 관리</h1>
+      <p>미융기/융보공 대학원 · 프라임관</p>
+    </div>
+    <div class="legend">
+      <span><span class="dot" style="background:var(--primary)"></span>사용 중</span>
+      <span><span class="dot" style="background:#fbbf24"></span>공용</span>
+      <span><span class="dot" style="background:#d4d4d8"></span>미사용</span>
+    </div>
+  </div>
+
+  <!-- 공지사항 -->
+  <div class="notice-section">
+    <div class="notice-section-title">공지 및 안내</div>
+    <div class="notice-grid">
+
+      <!-- 자산 안내 -->
+      <div class="nc">
+        <div class="nc-header" onclick="toggleNotice('n1')">
+          <div class="nc-icon asset">📦</div>
+          <div class="nc-meta">
+            <div class="nc-title">사용 자산 관련 안내</div>
+            <div class="nc-desc">자산번호 기입 방법 및 주의사항</div>
+          </div>
+          <span class="nc-chevron" id="chev-n1">▼</span>
+        </div>
+        <div class="nc-body" id="n1">
+          <div class="nc-inner">
+            <ul class="nc-list">
+              <li>연구실 별 좌석 배치도를 확인하고, 본인 자리의 정보를 채워주세요.</li>
+              <li>자산 스티커가 없는 경우 <strong>(-)</strong> 로 표시</li>
+              <li>자산이 두 개인 경우 <strong>/ 구분</strong> 또는 두 줄로 작성</li>
+              <li>공용 PC는 <strong>서버 이름(관리자 이름)</strong> 함께 작성</li>
+              <li>자산 이동 시 <strong>이동신청</strong> 탭 기입 필수</li>
+              <li class="warn">자산 임의 이동 불가</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- 연구실 안내 -->
+      <div class="nc">
+        <div class="nc-header" onclick="toggleNotice('n2')">
+          <div class="nc-icon info">📋</div>
+          <div class="nc-meta">
+            <div class="nc-title">연구실 사용 관련 정보</div>
+            <div class="nc-desc">복합기 연결, IP 설정 등</div>
+          </div>
+          <span class="nc-chevron" id="chev-n2">▼</span>
+        </div>
+        <div class="nc-body" id="n2">
+          <div class="nc-inner">
+            <ul class="nc-list">
+              <li><a href="https://drive.google.com/file/d/1aGaEaJw5YbENcU-2HdONTmHHK5atVweu/view?usp=drive_link" target="_blank">📄 IP 설정 방법</a></li>
+              <li><a href="https://drive.google.com/drive/folders/1Cx0dPkIZXaMnYyshWCU1M6EVMwBsdOFW?usp=drive_link" target="_blank">🗂 좌석 배치도</a></li>
+              <li><a href="https://drive.google.com/drive/folders/1giGkK9QOa_k2ATBzNYcx-R2jCcg2YMyh?usp=drive_link" target="_blank">🖨 복합기 연결</a></li>
+              <li class="sub">각 연구실도 동일 방법으로 복합기 정보만 변경하면 연결됩니다.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- IP 정보 -->
+      <div class="nc">
+        <div class="nc-header" onclick="toggleNotice('n3')">
+          <div class="nc-icon ip">🌐</div>
+          <div class="nc-meta">
+            <div class="nc-title">IP 관련 정보</div>
+            <div class="nc-desc">IP 할당 요청 방법</div>
+          </div>
+          <span class="nc-chevron" id="chev-n3">▼</span>
+        </div>
+        <div class="nc-body" id="n3">
+          <div class="nc-inner">
+            <ul class="nc-list">
+              <li>IP 주소는 IT운영팀에 요청하여 할당 받아야 네트워크 사용이 가능합니다.</li>
+              <li>할당 요청 시 필요한 <strong>IP 수량</strong>과 <strong>사용 연구실</strong>을 함께 전달해주세요.</li>
+              <li>📧 <a href="mailto:cseri@sungshin.ac.kr">cseri@sungshin.ac.kr</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div><!-- /notice-section -->
+</div><!-- /sticky-top -->
+
+  <!-- 연구실 탭 + 내용 -->
+  <div class="tab-section">
+    <div class="room-tabs-wrap">
+      <div class="room-tabs" id="room-tabs"></div>
+    </div>
+    <div id="view-main"><div class="loading">데이터 불러오는 중...</div></div>
+  </div>
+</div>
+
+<!-- 자리 모달 -->
+<div class="modal-bg" id="seat-modal">
+  <div class="modal">
+    <h3 id="sm-title"></h3>
+    <div class="modal-sub" id="sm-sub"></div>
+    <div class="field" id="sm-field-label" style="display:none">
+      <label>박스 이름 <span class="req">*</span></label>
+      <input id="sm-label" placeholder="예: 공용PC, 프린터, 서버"/>
+    </div>
+    <div class="field" id="sm-field-user">
+      <label>사용자 이름 <span class="req">*</span></label>
+      <input id="sm-user" placeholder="이름 입력"/>
+    </div>
+    <div class="field">
+      <label>PC 자산번호 <span class="req">*</span></label>
+      <input id="sm-pc" placeholder="예: 2021-0908-0013"/>
+    </div>
+    <div class="field">
+      <label>모니터 자산번호 <span class="req">*</span></label>
+      <input id="sm-mon" placeholder="예: 2021-0908-0019"/>
+    </div>
+    <div class="err-msg" id="sm-err"></div>
+    <div class="modal-actions">
+      <button class="btn danger" id="sm-btn-clear" onclick="clearSeat()" style="display:none">비우기</button>
+      <button class="btn danger" id="sm-btn-delpub" onclick="deletePub()" style="display:none">삭제</button>
+      <button class="btn" onclick="closeSeatModal()">취소</button>
+      <button class="btn primary" id="sm-btn-save" onclick="saveSeat()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- 로그 모달 -->
+<div class="modal-bg" id="log-modal">
+  <div class="modal">
+    <h3 id="lm-title">원격PC실 사용 등록</h3>
+    <div class="modal-sub">모든 <span class="req">*</span> 항목은 필수입니다.</div>
+    <div class="field">
+      <label>사용자 이름 <span class="req">*</span></label>
+      <input id="lm-name" placeholder="홍길동"/>
+    </div>
+    <div class="field">
+      <label>소속 연구실 <span class="req">*</span></label>
+      <input id="lm-lab" placeholder="예: 김교수 연구실"/>
+    </div>
+    <div class="field">
+      <label>연락처 <span class="req">*</span></label>
+      <input id="lm-contact" placeholder="이메일 또는 전화번호"/>
+    </div>
+    <div class="field" id="lm-field-pc">
+      <label>PC 자산번호 <span class="req">*</span></label>
+      <input id="lm-pc" placeholder="예: 2021-0908-0013"/>
+    </div>
+    <div class="field">
+      <label>사용 시작일 <span class="req">*</span></label>
+      <input id="lm-start" type="date"/>
+    </div>
+    <div class="field">
+      <label>사용 종료일 <span class="req">*</span></label>
+      <input id="lm-end" type="date"/>
+    </div>
+    <div class="field">
+      <label>메모 <span style="color:var(--text3);font-weight:400">(선택)</span></label>
+      <textarea id="lm-memo" placeholder="기타 내용"></textarea>
+    </div>
+    <div class="err-msg" id="lm-err"></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeLogModal()">취소</button>
+      <button class="btn primary" id="lm-btn-save" onclick="saveLog()">등록</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API_URL = 'https://script.google.com/macros/s/AKfycbyjLSWgOOs86ijHpvAEV8vl8F0dcPX_r1nRCUirO1CSZKCJyDZPEEcrkQV8AjxsSl0uvg/exec';
+const ROOMS = ['프라임관 101','프라임관 102','프라임관 206','프라임관 207','프라임관 602','프라임관 603','프라임관 702'];
+const REMOTE = '프라임관 703';
+const SEAT_W = 122, SEAT_H = 80;
+
+let allSeats=[], allLogs=[], curRoom=ROOMS[0], topMode='room', delMode=false;
+let dragging=null, dragOffX=0, dragOffY=0, dragMoved=false;
+let editSeat=null, editLogId=null, canvasEl=null, pendingLayout={};
+
+// ── API ──
+async function apiFetch(p){const r=await fetch(API_URL+'?'+new URLSearchParams(p));return r.json();}
+async function apiPost(b){const r=await fetch(API_URL,{method:'POST',body:JSON.stringify(b)});return r.json();}
+
+// ── 공지사항 ──
+function toggleNotice(id){
+  const b=document.getElementById(id), c=document.getElementById('chev-'+id);
+  const o=b.classList.contains('open');
+  b.classList.toggle('open',!o); c.classList.toggle('open',!o);
+}
+
+// ── 초기 로드 ──
+async function init(){
+  const d=await apiFetch({action:'getAll'});
+  allSeats=d.seats||[]; allLogs=d.logs||[];
+  renderRoomTabs(); selectRoom(ROOMS[0]);
+}
+
+// ── 탭 ──
+function renderRoomTabs(){
+  const el=document.getElementById('room-tabs');
+  let h=`<button class="rtab${topMode==='ov'?' active':''}" onclick="showOverview()">전체 현황</button>`;
+  ROOMS.forEach(r=>{
+    const empty=allSeats.filter(s=>s.room===r&&!s.seat_no.toString().startsWith('pub_')&&!s.user).length;
+    h+=`<button class="rtab${topMode==='room'&&curRoom===r?' active':''}" onclick="selectRoom('${r}')">${r}${empty>0?`<span class="eb">${empty}</span>`:''}</button>`;
+  });
+  h+=`<button class="rtab remote${topMode==='remote'?' active':''}" onclick="showRemote()">${REMOTE}</button>`;
+  el.innerHTML=h;
+}
+
+// ── 전체 현황 ──
+function showOverview(){
+  topMode='ov'; delMode=false; renderRoomTabs();
+  const cards=ROOMS.map(r=>{
+    const s=allSeats.filter(x=>x.room===r&&!x.seat_no.toString().startsWith('pub_'));
+    const occ=s.filter(x=>x.user).length, pct=s.length?Math.round(occ/s.length*100):0;
+    return `<div class="ov-card" onclick="selectRoom('${r}')">
+      <div class="ov-name">${r}</div>
+      <div class="ov-bar-bg"><div class="ov-bar" style="width:${pct}%"></div></div>
+      <div class="ov-nums">${occ} / ${s.length}석 사용 중 <span style="color:var(--text3)">(${pct}%)</span></div>
+    </div>`;
+  }).join('');
+  const rem=`<div class="ov-card remote-card" onclick="showRemote()">
+    <div class="ov-name">${REMOTE}</div>
+    <div class="ov-bar-bg"><div class="ov-bar" style="width:100%;background:var(--green)"></div></div>
+    <div class="ov-nums">누적 ${allLogs.length}건 기록</div>
+  </div>`;
+  document.getElementById('view-main').innerHTML=`<div class="ov-grid">${cards}${rem}</div>`;
+}
+
+// ── 연구실 배치도 ──
+function selectRoom(r){curRoom=r;topMode='room';delMode=false;renderRoomTabs();renderRoom();}
+
+function renderRoom(){
+  const seats=allSeats.filter(s=>s.room===curRoom);
+  const normal=seats.filter(s=>!s.seat_no.toString().startsWith('pub_'));
+  const occ=normal.filter(s=>s.user).length;
+  document.getElementById('view-main').innerHTML=`
+    <div class="stats">
+      <div class="stat"><div class="stat-val">${normal.length}</div><div class="stat-lbl">전체 자리</div></div>
+      <div class="stat"><div class="stat-val" style="color:var(--primary)">${occ}</div><div class="stat-lbl">사용 중</div></div>
+      <div class="stat"><div class="stat-val" style="color:var(--text3)">${normal.length-occ}</div><div class="stat-lbl">미사용</div></div>
+    </div>
+    <div class="toolbar">
+      <span class="hint">드래그로 이동 &nbsp;·&nbsp; 클릭으로 정보 입력</span>
+      <button class="tool-btn" onclick="openAddPublic()">＋ 공용 박스 추가</button>
+      <button class="tool-btn ${delMode?'danger-mode':''}" id="del-btn" onclick="toggleDelMode()">${delMode?'✕ 삭제 모드':'공용 박스 삭제'}</button>
+    </div>
+    <div class="canvas-wrap"><div class="canvas" id="canvas"></div></div>`;
+  canvasEl=document.getElementById('canvas');
+  renderSeats(); setupDrag();
+}
+
+function renderSeats(){
+  if(!canvasEl)return;
+  const seats=allSeats.filter(s=>s.room===curRoom);
+  let maxB=0; canvasEl.innerHTML='';
+  seats.forEach(s=>{
+    const isPub=s.seat_no.toString().startsWith('pub_'), isOcc=!isPub&&s.user;
+    const el=document.createElement('div');
+    el.className='seat'+(isPub?' pub':isOcc?' occ':' empty')+(delMode&&isPub?' del-mode':'');
+    el.style.cssText=`left:${s.x||0}px;top:${s.y||0}px;width:${SEAT_W}px`;
+    el.dataset.seatNo=s.seat_no;
+    el.innerHTML=`<div class="seat-type">${isPub?'공용':`${s.seat_no}번 자리`}</div>
+      <div class="seat-label">${isPub?(s.label||'공용'):(s.user||'(미사용)')}</div>
+      <div class="seat-sub">${s.pc?'PC …'+String(s.pc).slice(-6):''}</div>`;
+    canvasEl.appendChild(el);
+    const b=(s.y||0)+SEAT_H; if(b>maxB)maxB=b;
+  });
+  canvasEl.style.minHeight=(maxB+40)+'px';
+  updateStats();
+}
+
+function updateStats(){
+  const n=allSeats.filter(s=>s.room===curRoom&&!s.seat_no.toString().startsWith('pub_'));
+  const o=n.filter(s=>s.user).length;
+  const els=document.querySelectorAll('.stat-val');
+  if(els.length>=3){els[0].textContent=n.length;els[1].textContent=o;els[2].textContent=n.length-o;}
+  renderRoomTabs();
+}
+
+// ── 드래그 ──
+function setupDrag(){
+  if(!canvasEl)return;
+  canvasEl.addEventListener('mousedown',onDS);
+  canvasEl.addEventListener('touchstart',onDS,{passive:false});
+  document.addEventListener('mousemove',onDM);
+  document.addEventListener('touchmove',onDM,{passive:false});
+  document.addEventListener('mouseup',onDE);
+  document.addEventListener('touchend',onDE);
+}
+function pt(e){return e.touches?{x:e.touches[0].clientX,y:e.touches[0].clientY}:{x:e.clientX,y:e.clientY};}
+function onDS(e){
+  const el=e.target.closest('.seat');if(!el)return;
+  e.preventDefault();dragMoved=false;
+  const sno=el.dataset.seatNo;
+  const s=allSeats.find(x=>x.room===curRoom&&String(x.seat_no)===String(sno));
+  const r=canvasEl.getBoundingClientRect(),p=pt(e);
+  dragOffX=p.x-r.left-(s.x||0);dragOffY=p.y-r.top-(s.y||0);
+  dragging={sno,seat:s,el};el.classList.add('dragging');
+}
+function onDM(e){
+  if(!dragging)return;e.preventDefault();dragMoved=true;
+  const r=canvasEl.getBoundingClientRect(),p=pt(e);
+  let nx=p.x-r.left-dragOffX,ny=p.y-r.top-dragOffY;
+  nx=Math.max(0,Math.min(nx,canvasEl.offsetWidth-SEAT_W));ny=Math.max(0,ny);
+  dragging.seat.x=nx;dragging.seat.y=ny;
+  dragging.el.style.left=nx+'px';dragging.el.style.top=ny+'px';
+  canvasEl.style.minHeight=(ny+SEAT_H+40)+'px';
+  if(!pendingLayout[curRoom])pendingLayout[curRoom]={};
+  pendingLayout[curRoom][dragging.sno]={x:nx,y:ny};
+}
+async function onDE(){
+  if(!dragging)return;
+  dragging.el.classList.remove('dragging');
+  if(!dragMoved){
+    const isPub=dragging.sno.toString().startsWith('pub_');
+    if(delMode&&isPub)await deletePubDirect(dragging.seat);
+    else openSeatModal(dragging.seat);
+  }else await flushLayout();
+  dragging=null;
+}
+async function flushLayout(){
+  if(!pendingLayout[curRoom])return;
+  const seats=Object.entries(pendingLayout[curRoom]).map(([seat_no,pos])=>({seat_no,x:pos.x,y:pos.y}));
+  await apiPost({action:'updateLayout',room:curRoom,seats});
+  delete pendingLayout[curRoom];
+}
+
+// ── 삭제 모드 ──
+function toggleDelMode(){
+  delMode=!delMode;renderSeats();
+  const b=document.getElementById('del-btn');
+  if(b){b.textContent=delMode?'✕ 삭제 모드':'공용 박스 삭제';b.classList.toggle('danger-mode',delMode);}
+}
+async function deletePubDirect(seat){
+  if(!confirm(`"${seat.label||'공용 박스'}"를 삭제할까요?`))return;
+  await apiPost({action:'deletePublic',room:curRoom,seat_no:seat.seat_no});
+  allSeats=allSeats.filter(s=>!(s.room===curRoom&&s.seat_no===seat.seat_no));
+  renderSeats();
+}
+
+// ── 자리 모달 ──
+function openSeatModal(seat){
+  editSeat=seat;
+  const isPub=seat.seat_no.toString().startsWith('pub_');
+  document.getElementById('sm-title').textContent=isPub?`공용 박스 — ${seat.label||''}`:`${seat.seat_no}번 자리`;
+  document.getElementById('sm-sub').textContent=isPub?'자산번호를 입력하세요.':'이름과 자산번호를 모두 입력하세요.';
+  document.getElementById('sm-field-label').style.display=isPub?'':'none';
+  document.getElementById('sm-field-user').style.display=isPub?'none':'';
+  document.getElementById('sm-label').value=seat.label||'';
+  document.getElementById('sm-user').value=seat.user||'';
+  document.getElementById('sm-pc').value=seat.pc||'';
+  document.getElementById('sm-mon').value=seat.monitor||'';
+  document.getElementById('sm-err').textContent='';
+  document.getElementById('sm-btn-clear').style.display=(!isPub&&seat.user)?'':'none';
+  document.getElementById('sm-btn-delpub').style.display=isPub?'':'none';
+  document.getElementById('sm-btn-save').textContent='저장';
+  document.getElementById('sm-btn-save').onclick=saveSeat;
+  document.getElementById('seat-modal').classList.add('open');
+  validateSeat();
+  ['sm-label','sm-user','sm-pc','sm-mon'].forEach(id=>document.getElementById(id).oninput=validateSeat);
+}
+function validateSeat(){
+  const isPub=editSeat&&editSeat.seat_no.toString().startsWith('pub_');
+  const l=document.getElementById('sm-label').value.trim();
+  const u=document.getElementById('sm-user').value.trim();
+  const p=document.getElementById('sm-pc').value.trim();
+  const m=document.getElementById('sm-mon').value.trim();
+  document.getElementById('sm-btn-save').disabled=isPub?!(l&&p&&m):!(u&&p&&m);
+}
+function closeSeatModal(){document.getElementById('seat-modal').classList.remove('open');editSeat=null;}
+async function saveSeat(){
+  const isPub=editSeat.seat_no.toString().startsWith('pub_');
+  const label=document.getElementById('sm-label').value.trim();
+  const user=document.getElementById('sm-user').value.trim();
+  const pc=document.getElementById('sm-pc').value.trim();
+  const mon=document.getElementById('sm-mon').value.trim();
+  if(isPub&&(!label||!pc||!mon)){document.getElementById('sm-err').textContent='모든 항목을 입력해주세요.';return;}
+  if(!isPub&&(!user||!pc||!mon)){document.getElementById('sm-err').textContent='모든 항목을 입력해주세요.';return;}
+  document.getElementById('sm-btn-save').disabled=true;
+  document.getElementById('sm-btn-save').textContent='저장 중...';
+  const res=await apiPost({action:'updateSeat',room:curRoom,seat_no:editSeat.seat_no,label,user,pc,monitor:mon});
+  if(res.error){document.getElementById('sm-err').textContent=res.error;document.getElementById('sm-btn-save').disabled=false;document.getElementById('sm-btn-save').textContent='저장';return;}
+  const s=allSeats.find(x=>x.room===curRoom&&String(x.seat_no)===String(editSeat.seat_no));
+  if(s){s.user=user;s.pc=pc;s.monitor=mon;if(isPub)s.label=label;}
+  closeSeatModal();renderSeats();
+}
+async function clearSeat(){
+  if(!confirm('자리를 비울까요?'))return;
+  await apiPost({action:'updateSeat',room:curRoom,seat_no:editSeat.seat_no,user:'',pc:'',monitor:''});
+  const s=allSeats.find(x=>x.room===curRoom&&String(x.seat_no)===String(editSeat.seat_no));
+  if(s){s.user='';s.pc='';s.monitor='';}
+  closeSeatModal();renderSeats();
+}
+async function deletePub(){
+  if(!confirm('공용 박스를 삭제할까요?'))return;
+  await apiPost({action:'deletePublic',room:curRoom,seat_no:editSeat.seat_no});
+  allSeats=allSeats.filter(s=>!(s.room===curRoom&&String(s.seat_no)===String(editSeat.seat_no)));
+  closeSeatModal();renderSeats();
+}
+function openAddPublic(){
+  editSeat={seat_no:'pub_new',room:curRoom,label:'',user:'',pc:'',monitor:'',x:0,y:0};
+  document.getElementById('sm-title').textContent='공용 박스 추가';
+  document.getElementById('sm-sub').textContent='공용 PC, 프린터, 서버 등에 사용하세요.';
+  document.getElementById('sm-field-label').style.display='';
+  document.getElementById('sm-field-user').style.display='none';
+  ['sm-label','sm-pc','sm-mon'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('sm-err').textContent='';
+  document.getElementById('sm-btn-clear').style.display='none';
+  document.getElementById('sm-btn-delpub').style.display='none';
+  document.getElementById('sm-btn-save').textContent='추가';
+  document.getElementById('sm-btn-save').onclick=saveNewPublic;
+  document.getElementById('seat-modal').classList.add('open');
+  validateSeat();
+}
+async function saveNewPublic(){
+  const label=document.getElementById('sm-label').value.trim();
+  const pc=document.getElementById('sm-pc').value.trim();
+  const mon=document.getElementById('sm-mon').value.trim();
+  if(!label||!pc||!mon){document.getElementById('sm-err').textContent='모든 항목을 입력해주세요.';return;}
+  document.getElementById('sm-btn-save').disabled=true;
+  const maxY=allSeats.filter(s=>s.room===curRoom).reduce((m,s)=>Math.max(m,s.y||0),0);
+  const res=await apiPost({action:'addPublic',room:curRoom,label,pc,monitor:mon,x:0,y:maxY+SEAT_H+14});
+  if(res.error){document.getElementById('sm-err').textContent=res.error;document.getElementById('sm-btn-save').disabled=false;return;}
+  const fresh=await apiFetch({action:'getRoom',room:curRoom});
+  allSeats=allSeats.filter(s=>s.room!==curRoom).concat(fresh.seats||[]);
+  closeSeatModal();renderSeats();
+}
+
+// ── 원격PC실 로그 ──
+function showRemote(){topMode='remote';delMode=false;renderRoomTabs();renderRemote();}
+function renderRemote(q=''){
+  const logs=allLogs.filter(l=>!q||[l.name,l.lab,l.contact,l.pc_asset,l.memo].some(v=>v&&v.toLowerCase().includes(q.toLowerCase())));
+  const rows=logs.length===0
+    ?`<tr><td colspan="8" class="log-empty">등록된 사용 기록이 없습니다.</td></tr>`
+    :[...logs].reverse().map(l=>`<tr>
+        <td><strong>${l.name}</strong></td>
+        <td>${l.lab}</td>
+        <td style="color:var(--text2)">${l.contact}</td>
+        <td style="font-size:12px;color:var(--text3);font-family:monospace">${l.pc_asset}</td>
+        <td>${l.start_date}</td>
+        <td>${l.end_date}</td>
+        <td style="color:var(--text2)">${l.memo||'—'}</td>
+        <td><span class="edit-link" onclick="openEditLog('${l.id}')">수정</span></td>
+      </tr>`).join('');
+  document.getElementById('view-main').innerHTML=`
+    <div class="log-wrap">
+      <div class="log-toolbar">
+        <h3>프라임관 703 사용 기록 <span style="font-weight:400;color:var(--text3);font-size:12px">총 ${allLogs.length}건</span></h3>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <input class="search-box" placeholder="이름·연구실·자산번호 검색" oninput="renderRemote(this.value)" value="${q}"/>
+          <button class="tool-btn accent" onclick="openAddLog()">＋ 사용 등록</button>
+        </div>
+      </div>
+      <div class="log-table-wrap">
+        <table class="log-table">
+          <thead><tr><th>사용자</th><th>소속 연구실</th><th>연락처</th><th>PC 자산번호</th><th>시작일</th><th>종료일</th><th>메모</th><th></th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>`;
+}
+function openAddLog(){
+  editLogId=null;
+  document.getElementById('lm-title').textContent='프라임관 703 사용 등록';
+  document.getElementById('lm-field-pc').style.display='';
+  ['lm-name','lm-lab','lm-contact','lm-pc','lm-memo'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('lm-start').value=today();
+  document.getElementById('lm-end').value='';
+  document.getElementById('lm-err').textContent='';
+  document.getElementById('lm-btn-save').textContent='등록';
+  document.getElementById('log-modal').classList.add('open');
+}
+function openEditLog(id){
+  const log=allLogs.find(l=>l.id===id);if(!log)return;
+  editLogId=id;
+  document.getElementById('lm-title').textContent='사용 기록 수정';
+  document.getElementById('lm-field-pc').style.display='none';
+  document.getElementById('lm-name').value=log.name;
+  document.getElementById('lm-lab').value=log.lab;
+  document.getElementById('lm-contact').value=log.contact;
+  document.getElementById('lm-start').value=log.start_date;
+  document.getElementById('lm-end').value=log.end_date;
+  document.getElementById('lm-memo').value=log.memo||'';
+  document.getElementById('lm-err').textContent='';
+  document.getElementById('lm-btn-save').textContent='저장';
+  ['lm-name','lm-lab','lm-contact','lm-start'].forEach(id=>document.getElementById(id).readOnly=true);
+  document.getElementById('log-modal').classList.add('open');
+}
+function closeLogModal(){
+  document.getElementById('log-modal').classList.remove('open');
+  ['lm-name','lm-lab','lm-contact','lm-start'].forEach(id=>document.getElementById(id).readOnly=false);
+  editLogId=null;
+}
+async function saveLog(){
+  const name=document.getElementById('lm-name').value.trim();
+  const lab=document.getElementById('lm-lab').value.trim();
+  const contact=document.getElementById('lm-contact').value.trim();
+  const pc=document.getElementById('lm-pc').value.trim();
+  const start=document.getElementById('lm-start').value;
+  const end=document.getElementById('lm-end').value;
+  const memo=document.getElementById('lm-memo').value.trim();
+  if(editLogId){
+    if(!end){document.getElementById('lm-err').textContent='사용 종료일을 입력해주세요.';return;}
+    document.getElementById('lm-btn-save').disabled=true;
+    const res=await apiPost({action:'updateLog',id:editLogId,end_date:end,memo});
+    if(res.error){document.getElementById('lm-err').textContent=res.error;document.getElementById('lm-btn-save').disabled=false;return;}
+    const l=allLogs.find(x=>x.id===editLogId);
+    if(l){l.end_date=end;l.memo=memo;}
+  }else{
+    if(!name||!lab||!contact||!pc||!start||!end){document.getElementById('lm-err').textContent='모든 필수 항목을 입력해주세요.';return;}
+    document.getElementById('lm-btn-save').disabled=true;
+    const res=await apiPost({action:'addLog',name,lab,contact,pc_asset:pc,start_date:start,end_date:end,memo});
+    if(res.error){document.getElementById('lm-err').textContent=res.error;document.getElementById('lm-btn-save').disabled=false;return;}
+    allLogs.push({id:res.id,name,lab,contact,pc_asset:pc,start_date:start,end_date:end,memo,created_at:today()});
+  }
+  document.getElementById('lm-btn-save').disabled=false;
+  closeLogModal();renderRemote();
+}
+function today(){return new Date().toISOString().slice(0,10);}
+['seat-modal','log-modal'].forEach(id=>{
+  document.getElementById(id).addEventListener('click',e=>{
+    if(e.target===document.getElementById(id)){id==='seat-modal'?closeSeatModal():closeLogModal();}
+  });
+});
+init();
+</script>
+</body>
+</html>
