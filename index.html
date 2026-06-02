@@ -7,9 +7,7 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#f0f2f8;
-  --surface:#fff;
-  --border:#e4e7ef;
+  --bg:#f0f2f8;--surface:#fff;--border:#e4e7ef;
   --primary:#4B44A8;--primary-light:#EEEDFE;--primary-border:#AFA9EC;
   --text:#18181b;--text2:#52525b;--text3:#a1a1aa;
   --danger:#dc2626;--danger-light:#fef2f2;
@@ -18,22 +16,21 @@
   --radius:12px;--radius-sm:8px;
   --shadow:0 1px 4px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.04);
 }
-body{font-family:-apple-system,BlinkMacSystemFont,'Pretendard','Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
-
-/* ── 레이아웃 ── */
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 .app{max-width:1040px;margin:0 auto;padding:28px 20px}
 .sticky-top{position:sticky;top:0;z-index:50;background:var(--bg);padding-top:28px;margin-top:-28px}
-.tab-section{margin-top:0}
 
-/* ── 헤더 ── */
-.header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
-.header-left h1{font-size:22px;font-weight:700;letter-spacing:-.4px;color:var(--text)}
+/* 헤더 */
+.header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+.header-left h1{font-size:22px;font-weight:700;letter-spacing:-.4px}
 .header-left p{font-size:12px;color:var(--text3);margin-top:3px}
+.header-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .legend{display:flex;gap:14px;font-size:12px;color:var(--text2);align-items:center;background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:6px 14px}
 .dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px;vertical-align:middle}
+.admin-badge{font-size:11px;font-weight:700;padding:5px 12px;border-radius:999px;background:#fef9c3;color:#854d0e;border:1px solid #fde047}
 
-/* ── 공지사항 ── */
-.notice-section{margin-bottom:20px}
+/* 공지사항 */
+.notice-section{margin-bottom:16px}
 .notice-section-title{font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px;padding-left:2px}
 .notice-grid{display:flex;flex-direction:column;gap:6px}
 .nc{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
@@ -61,19 +58,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Pretendard','Segoe UI',sans-s
 .nc-list li strong{color:var(--text);font-weight:600}
 .nc-list li a{color:var(--primary);text-decoration:none}
 .nc-list li a:hover{text-decoration:underline}
-.nc-list{list-style:none;display:flex;flex-direction:column;gap:5px;padding-top:12px}
-.nc-list li{font-size:12.5px;color:var(--text2);line-height:1.65;display:flex;gap:8px;align-items:flex-start}
-.nc-list li::before{content:'•';color:var(--text3);flex-shrink:0;margin-top:1px}
-.nc-list li.warn{color:var(--danger);font-weight:600}
-.nc-list li.warn::before{content:'⚠️';font-size:11px}
-.nc-list li.sub{color:var(--text3);font-size:12px;padding-left:16px}
-.nc-list li.sub::before{content:'↳'}
-.nc-list li strong{color:var(--text);font-weight:600}
-.nc-list li a{color:var(--primary);text-decoration:none}
-.nc-list li a:hover{text-decoration:underline}
 
-/* ── 연구실 탭 ── */
-.room-tabs-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;margin-bottom:16px;box-shadow:var(--shadow);position:sticky;top:0;z-index:40}
+/* 탭 */
+.room-tabs-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;margin-bottom:16px;box-shadow:var(--shadow)}
 .room-tabs{display:flex;flex-wrap:wrap;gap:5px}
 .rtab{font-size:12px;padding:5px 13px;border-radius:999px;border:1px solid transparent;background:transparent;color:var(--text2);cursor:pointer;transition:all .15s;position:relative;font-weight:500}
 .rtab:hover{background:var(--bg);border-color:var(--border)}
@@ -81,13 +68,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Pretendard','Segoe UI',sans-s
 .rtab.remote.active{background:var(--green);border-color:var(--green)}
 .rtab .eb{position:absolute;top:-5px;right:-5px;background:var(--danger);color:#fff;font-size:9px;border-radius:999px;min-width:15px;height:15px;display:flex;align-items:center;justify-content:center;padding:0 3px;font-weight:700}
 
-/* ── 통계 ── */
+/* 통계+툴바 고정 */
+.room-sticky{position:sticky;top:0;z-index:30;background:var(--bg);padding-bottom:10px}
+
+/* 통계 */
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
 .stat{background:var(--surface);border-radius:var(--radius);padding:14px 16px;text-align:center;border:1px solid var(--border);box-shadow:var(--shadow)}
 .stat-val{font-size:24px;font-weight:700;letter-spacing:-.5px}
 .stat-lbl{font-size:11px;color:var(--text3);margin-top:3px;font-weight:500}
 
-/* ── 툴바 ── */
+/* 툴바 */
 .toolbar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
 .tool-btn{font-size:12px;padding:6px 14px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;display:flex;align-items:center;gap:5px;font-weight:500;transition:all .15s;box-shadow:var(--shadow)}
 .tool-btn:hover{background:var(--bg)}
@@ -96,11 +86,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Pretendard','Segoe UI',sans-s
 .tool-btn.accent:hover{background:#3a3490}
 .hint{font-size:11px;color:var(--text3);margin-right:4px}
 
-/* ── 배치도 ── */
+/* 배치도 */
 .canvas-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;overflow:auto;min-height:300px;box-shadow:var(--shadow)}
 .canvas{position:relative;min-height:260px}
-.seat{position:absolute;width:122px;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;cursor:grab;user-select:none;transition:box-shadow .15s,border-color .15s;box-shadow:var(--shadow)}
-.seat:active{cursor:grabbing}
+
+/* 자리 카드 */
+.seat{position:absolute;width:122px;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;user-select:none;transition:box-shadow .15s,border-color .15s;box-shadow:var(--shadow)}
+.seat.clickable{cursor:pointer}
+.seat.clickable:hover{border-color:var(--primary-border);box-shadow:0 4px 12px rgba(75,68,168,.1)}
+.seat.draggable{cursor:grab}
+.seat.draggable:active{cursor:grabbing}
 .seat.occ{border-color:var(--primary-border);background:var(--primary-light)}
 .seat.pub{border-color:#fbbf24;background:var(--orange-light)}
 .seat.empty{opacity:.55}
@@ -112,21 +107,32 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Pretendard','Segoe UI',sans-s
 .seat-label{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text)}
 .seat-sub{font-size:10px;color:var(--text3);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-/* ── 전체 현황 ── */
+/* 장식 요소 (문/창문/회의테이블 등) */
+.deco{position:absolute;user-select:none;display:flex;align-items:center;justify-content:center;border-radius:var(--radius-sm);font-size:11px;font-weight:600;color:var(--text3);border:1.5px dashed var(--border);background:rgba(240,242,248,.7)}
+.deco.draggable{cursor:grab}
+.deco.draggable:active{cursor:grabbing}
+.deco.window{background:rgba(219,234,254,.5);border-color:#93c5fd;color:#1d4ed8}
+.deco.door{background:rgba(220,252,231,.5);border-color:#86efac;color:#166534}
+.deco.table{background:rgba(254,243,199,.5);border-color:#fcd34d;color:#92400e}
+.deco.etc{background:rgba(243,244,246,.7);border-color:#d1d5db;color:#6b7280}
+.deco-del{position:absolute;top:-6px;right:-6px;width:16px;height:16px;border-radius:50%;background:var(--danger);color:#fff;font-size:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:10;display:none}
+.deco:hover .deco-del{display:flex}
+
+/* 전체 현황 */
 .ov-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
 .ov-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;cursor:pointer;transition:all .18s;box-shadow:var(--shadow)}
-.ov-card:hover{border-color:var(--primary);transform:translateY(-1px);box-shadow:0 4px 16px rgba(75,68,168,.12)}
+.ov-card:hover{border-color:var(--primary);transform:translateY(-1px)}
 .ov-card.remote-card:hover{border-color:var(--green)}
-.ov-name{font-size:13px;font-weight:700;margin-bottom:10px;color:var(--text)}
+.ov-name{font-size:13px;font-weight:700;margin-bottom:10px}
 .ov-bar-bg{background:var(--bg);border-radius:999px;height:5px;margin-bottom:7px;overflow:hidden}
 .ov-bar{background:var(--primary);border-radius:999px;height:5px;transition:width .4s}
 .ov-nums{font-size:12px;color:var(--text2);font-weight:500}
 
-/* ── 로그 ── */
+/* 로그 */
 .log-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
 .log-toolbar{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:10px;background:#fafafa}
 .log-toolbar h3{font-size:14px;font-weight:700}
-.search-box{font-size:12px;padding:7px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);outline:none;width:210px;background:var(--surface);transition:border-color .15s}
+.search-box{font-size:12px;padding:7px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);outline:none;width:210px;transition:border-color .15s}
 .search-box:focus{border-color:var(--primary)}
 .log-table-wrap{overflow-x:auto}
 .log-table{width:100%;border-collapse:collapse;font-size:13px}
@@ -135,18 +141,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Pretendard','Segoe UI',sans-s
 .log-table tr:last-child td{border-bottom:none}
 .log-table tr:hover td{background:#fafafa}
 .log-empty{text-align:center;padding:48px;color:var(--text3);font-size:13px}
-.edit-link{font-size:11px;color:var(--primary);cursor:pointer;font-weight:600;text-decoration:none;padding:3px 8px;border-radius:5px;background:var(--primary-light)}
-.edit-link:hover{background:var(--primary-border);color:#fff}
+.edit-link{font-size:11px;color:var(--primary);cursor:pointer;font-weight:600;padding:3px 8px;border-radius:5px;background:var(--primary-light)}
 
-/* ── 모달 ── */
+/* 모달 */
 .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(2px)}
 .modal-bg.open{display:flex}
 .modal{background:var(--surface);border-radius:16px;padding:26px;width:340px;max-width:92vw;box-shadow:0 12px 40px rgba(0,0,0,.18);max-height:90vh;overflow-y:auto}
-.modal h3{font-size:16px;font-weight:700;margin-bottom:3px;color:var(--text)}
+.modal h3{font-size:16px;font-weight:700;margin-bottom:3px}
 .modal-sub{font-size:12px;color:var(--text3);margin-bottom:18px}
 .field{margin-bottom:13px}
 .field label{font-size:12px;color:var(--text2);display:block;margin-bottom:5px;font-weight:600}
-.field input,.field select,.field textarea{width:100%;font-size:13px;padding:9px 11px;border:1.5px solid var(--border);border-radius:var(--radius-sm);outline:none;transition:border-color .15s;font-family:inherit;color:var(--text);background:var(--surface)}
+.field input,.field select,.field textarea{width:100%;font-size:13px;padding:9px 11px;border:1.5px solid var(--border);border-radius:var(--radius-sm);outline:none;transition:border-color .15s;font-family:inherit;color:var(--text)}
 .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--primary)}
 .field input.err{border-color:var(--danger)}
 .field textarea{resize:vertical;min-height:64px}
@@ -161,31 +166,35 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Pretendard','Segoe UI',sans-s
 .btn.danger{color:var(--danger);border-color:#fca5a5}
 .btn.danger:hover{background:var(--danger-light)}
 .loading{text-align:center;padding:60px;color:var(--text3);font-size:13px}
+
+/* 장식 추가 모달 */
+.deco-types{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:4px}
+.deco-type-btn{padding:10px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:var(--surface);cursor:pointer;text-align:center;font-size:12px;font-weight:600;transition:all .15s}
+.deco-type-btn:hover{border-color:var(--primary)}
+.deco-type-btn.selected{border-color:var(--primary);background:var(--primary-light);color:var(--primary)}
 </style>
 </head>
 <body>
 <div class="app">
-
 <div class="sticky-top">
-  <!-- 헤더 -->
   <div class="header">
     <div class="header-left">
       <h1>연구실 좌석 관리</h1>
       <p>미융기/융보공 대학원 · 프라임관</p>
     </div>
-    <div class="legend">
-      <span><span class="dot" style="background:var(--primary)"></span>사용 중</span>
-      <span><span class="dot" style="background:#fbbf24"></span>공용</span>
-      <span><span class="dot" style="background:#d4d4d8"></span>미사용</span>
+    <div class="header-right">
+      <div id="admin-badge" style="display:none" class="admin-badge">🔧 관리자 모드</div>
+      <div class="legend">
+        <span><span class="dot" style="background:var(--primary)"></span>사용 중</span>
+        <span><span class="dot" style="background:#fbbf24"></span>공용</span>
+        <span><span class="dot" style="background:#d4d4d8"></span>미사용</span>
+      </div>
     </div>
   </div>
 
-  <!-- 공지사항 -->
   <div class="notice-section">
     <div class="notice-section-title">공지 및 안내</div>
     <div class="notice-grid">
-
-      <!-- 자산 안내 -->
       <div class="nc">
         <div class="nc-header" onclick="toggleNotice('n1')">
           <div class="nc-icon asset">📦</div>
@@ -208,8 +217,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Pretendard','Segoe UI',sans-s
           </div>
         </div>
       </div>
-
-      <!-- 연구실 안내 -->
       <div class="nc">
         <div class="nc-header" onclick="toggleNotice('n2')">
           <div class="nc-icon info">📋</div>
@@ -230,8 +237,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Pretendard','Segoe UI',sans-s
           </div>
         </div>
       </div>
-
-      <!-- IP 정보 -->
       <div class="nc">
         <div class="nc-header" onclick="toggleNotice('n3')">
           <div class="nc-icon ip">🌐</div>
@@ -251,18 +256,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Pretendard','Segoe UI',sans-s
           </div>
         </div>
       </div>
-
     </div>
-  </div><!-- /notice-section -->
-</div><!-- /sticky-top -->
-
-  <!-- 연구실 탭 + 내용 -->
-  <div class="tab-section">
-    <div class="room-tabs-wrap">
-      <div class="room-tabs" id="room-tabs"></div>
-    </div>
-    <div id="view-main"><div class="loading">데이터 불러오는 중...</div></div>
   </div>
+
+  <div class="room-tabs-wrap">
+    <div class="room-tabs" id="room-tabs"></div>
+  </div>
+</div>
+
+<div id="view-main"><div class="loading">데이터 불러오는 중...</div></div>
 </div>
 
 <!-- 자리 모달 -->
@@ -296,39 +298,52 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Pretendard','Segoe UI',sans-s
   </div>
 </div>
 
+<!-- 장식 추가 모달 (관리자 전용) -->
+<div class="modal-bg" id="deco-modal">
+  <div class="modal">
+    <h3>장식 요소 추가</h3>
+    <div class="modal-sub">문, 창문, 회의테이블 등 배치도 구성 요소를 추가하세요.</div>
+    <div class="field">
+      <label>종류</label>
+      <div class="deco-types">
+        <button class="deco-type-btn selected" data-type="window" onclick="selectDecoType(this)">🪟 창문</button>
+        <button class="deco-type-btn" data-type="door" onclick="selectDecoType(this)">🚪 문</button>
+        <button class="deco-type-btn" data-type="table" onclick="selectDecoType(this)">🪑 회의테이블</button>
+        <button class="deco-type-btn" data-type="etc" onclick="selectDecoType(this)">📌 기타</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>표시 이름 <span class="req">*</span></label>
+      <input id="dm-label" placeholder="예: 창문, 출입문, 회의테이블"/>
+    </div>
+    <div class="field">
+      <label>가로 크기 (px)</label>
+      <input id="dm-w" type="number" value="120" min="40" max="400"/>
+    </div>
+    <div class="field">
+      <label>세로 크기 (px)</label>
+      <input id="dm-h" type="number" value="36" min="24" max="200"/>
+    </div>
+    <div class="err-msg" id="dm-err"></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeDecoModal()">취소</button>
+      <button class="btn primary" onclick="saveDeco()">추가</button>
+    </div>
+  </div>
+</div>
+
 <!-- 로그 모달 -->
 <div class="modal-bg" id="log-modal">
   <div class="modal">
     <h3 id="lm-title">원격PC실 사용 등록</h3>
     <div class="modal-sub">모든 <span class="req">*</span> 항목은 필수입니다.</div>
-    <div class="field">
-      <label>사용자 이름 <span class="req">*</span></label>
-      <input id="lm-name" placeholder="홍길동"/>
-    </div>
-    <div class="field">
-      <label>소속 연구실 <span class="req">*</span></label>
-      <input id="lm-lab" placeholder="예: 김교수 연구실"/>
-    </div>
-    <div class="field">
-      <label>연락처 <span class="req">*</span></label>
-      <input id="lm-contact" placeholder="이메일 또는 전화번호"/>
-    </div>
-    <div class="field" id="lm-field-pc">
-      <label>PC 자산번호 <span class="req">*</span></label>
-      <input id="lm-pc" placeholder="예: 2021-0908-0013"/>
-    </div>
-    <div class="field">
-      <label>사용 시작일 <span class="req">*</span></label>
-      <input id="lm-start" type="date"/>
-    </div>
-    <div class="field">
-      <label>사용 종료일 <span class="req">*</span></label>
-      <input id="lm-end" type="date"/>
-    </div>
-    <div class="field">
-      <label>메모 <span style="color:var(--text3);font-weight:400">(선택)</span></label>
-      <textarea id="lm-memo" placeholder="기타 내용"></textarea>
-    </div>
+    <div class="field"><label>사용자 이름 <span class="req">*</span></label><input id="lm-name" placeholder="홍길동"/></div>
+    <div class="field"><label>소속 연구실 <span class="req">*</span></label><input id="lm-lab" placeholder="예: 김교수 연구실"/></div>
+    <div class="field"><label>연락처 <span class="req">*</span></label><input id="lm-contact" placeholder="이메일 또는 전화번호"/></div>
+    <div class="field" id="lm-field-pc"><label>PC 자산번호 <span class="req">*</span></label><input id="lm-pc" placeholder="예: 2021-0908-0013"/></div>
+    <div class="field"><label>사용 시작일 <span class="req">*</span></label><input id="lm-start" type="date"/></div>
+    <div class="field"><label>사용 종료일 <span class="req">*</span></label><input id="lm-end" type="date"/></div>
+    <div class="field"><label>메모 <span style="color:var(--text3);font-weight:400">(선택)</span></label><textarea id="lm-memo" placeholder="기타 내용"></textarea></div>
     <div class="err-msg" id="lm-err"></div>
     <div class="modal-actions">
       <button class="btn" onclick="closeLogModal()">취소</button>
@@ -343,29 +358,34 @@ const ROOMS = ['프라임관 101','프라임관 102','프라임관 206','프라�
 const REMOTE = '프라임관 703';
 const SEAT_W = 122, SEAT_H = 80;
 
+// 관리자 모드: URL에 ?admin=true 있으면 활성화
+const IS_ADMIN = new URLSearchParams(location.search).get('admin') === 'true';
+
 let allSeats=[], allLogs=[], curRoom=ROOMS[0], topMode='room', delMode=false;
 let dragging=null, dragOffX=0, dragOffY=0, dragMoved=false;
 let editSeat=null, editLogId=null, canvasEl=null, pendingLayout={};
+let decoType='window';
 
-// ── API ──
+// 장식 데이터 (localStorage에 저장)
+function loadDecos(room){try{return JSON.parse(localStorage.getItem('decos_'+room)||'[]');}catch(e){return[];}}
+function saveDecos(room,decos){try{localStorage.setItem('decos_'+room,JSON.stringify(decos));}catch(e){}}
+
 async function apiFetch(p){const r=await fetch(API_URL+'?'+new URLSearchParams(p));return r.json();}
 async function apiPost(b){const r=await fetch(API_URL,{method:'POST',body:JSON.stringify(b)});return r.json();}
 
-// ── 공지사항 ──
 function toggleNotice(id){
-  const b=document.getElementById(id), c=document.getElementById('chev-'+id);
+  const b=document.getElementById(id),c=document.getElementById('chev-'+id);
   const o=b.classList.contains('open');
-  b.classList.toggle('open',!o); c.classList.toggle('open',!o);
+  b.classList.toggle('open',!o);c.classList.toggle('open',!o);
 }
 
-// ── 초기 로드 ──
 async function init(){
+  if(IS_ADMIN) document.getElementById('admin-badge').style.display='';
   const d=await apiFetch({action:'getAll'});
-  allSeats=d.seats||[]; allLogs=d.logs||[];
-  renderRoomTabs(); selectRoom(ROOMS[0]);
+  allSeats=d.seats||[];allLogs=d.logs||[];
+  renderRoomTabs();selectRoom(ROOMS[0]);
 }
 
-// ── 탭 ──
 function renderRoomTabs(){
   const el=document.getElementById('room-tabs');
   let h=`<button class="rtab${topMode==='ov'?' active':''}" onclick="showOverview()">전체 현황</button>`;
@@ -377,16 +397,15 @@ function renderRoomTabs(){
   el.innerHTML=h;
 }
 
-// ── 전체 현황 ──
 function showOverview(){
-  topMode='ov'; delMode=false; renderRoomTabs();
+  topMode='ov';delMode=false;renderRoomTabs();
   const cards=ROOMS.map(r=>{
     const s=allSeats.filter(x=>x.room===r&&!x.seat_no.toString().startsWith('pub_'));
-    const occ=s.filter(x=>x.user).length, pct=s.length?Math.round(occ/s.length*100):0;
+    const occ=s.filter(x=>x.user).length,pct=s.length?Math.round(occ/s.length*100):0;
     return `<div class="ov-card" onclick="selectRoom('${r}')">
       <div class="ov-name">${r}</div>
       <div class="ov-bar-bg"><div class="ov-bar" style="width:${pct}%"></div></div>
-      <div class="ov-nums">${occ} / ${s.length}석 사용 중 <span style="color:var(--text3)">(${pct}%)</span></div>
+      <div class="ov-nums">${occ}/${s.length}석 사용 중 <span style="color:var(--text3)">(${pct}%)</span></div>
     </div>`;
   }).join('');
   const rem=`<div class="ov-card remote-card" onclick="showRemote()">
@@ -397,44 +416,78 @@ function showOverview(){
   document.getElementById('view-main').innerHTML=`<div class="ov-grid">${cards}${rem}</div>`;
 }
 
-// ── 연구실 배치도 ──
 function selectRoom(r){curRoom=r;topMode='room';delMode=false;renderRoomTabs();renderRoom();}
 
 function renderRoom(){
   const seats=allSeats.filter(s=>s.room===curRoom);
   const normal=seats.filter(s=>!s.seat_no.toString().startsWith('pub_'));
   const occ=normal.filter(s=>s.user).length;
+
+  // 툴바 - 관리자만 편집 버튼 보임
+  const adminTools = IS_ADMIN ? `
+    <button class="tool-btn" onclick="openAddPublic()">＋ 공용 박스</button>
+    <button class="tool-btn" onclick="openDecoModal()">＋ 장식 추가</button>
+    <button class="tool-btn ${delMode?'danger-mode':''}" id="del-btn" onclick="toggleDelMode()">${delMode?'✕ 삭제 모드':'요소 삭제'}</button>
+  ` : '';
+
+  const hintText = IS_ADMIN
+    ? '<span class="hint">🔧 관리자 모드 — 드래그로 이동 · 클릭으로 정보 입력</span>'
+    : '<span class="hint">자리를 클릭해서 정보를 입력하세요.</span>';
+
   document.getElementById('view-main').innerHTML=`
-    <div class="stats">
-      <div class="stat"><div class="stat-val">${normal.length}</div><div class="stat-lbl">전체 자리</div></div>
-      <div class="stat"><div class="stat-val" style="color:var(--primary)">${occ}</div><div class="stat-lbl">사용 중</div></div>
-      <div class="stat"><div class="stat-val" style="color:var(--text3)">${normal.length-occ}</div><div class="stat-lbl">미사용</div></div>
-    </div>
-    <div class="toolbar">
-      <span class="hint">드래그로 이동 &nbsp;·&nbsp; 클릭으로 정보 입력</span>
-      <button class="tool-btn" onclick="openAddPublic()">＋ 공용 박스 추가</button>
-      <button class="tool-btn ${delMode?'danger-mode':''}" id="del-btn" onclick="toggleDelMode()">${delMode?'✕ 삭제 모드':'공용 박스 삭제'}</button>
+    <div class="room-sticky">
+      <div class="stats">
+        <div class="stat"><div class="stat-val">${normal.length}</div><div class="stat-lbl">전체 자리</div></div>
+        <div class="stat"><div class="stat-val" style="color:var(--primary)">${occ}</div><div class="stat-lbl">사용 중</div></div>
+        <div class="stat"><div class="stat-val" style="color:var(--text3)">${normal.length-occ}</div><div class="stat-lbl">미사용</div></div>
+      </div>
+      <div class="toolbar">${hintText}${adminTools}</div>
     </div>
     <div class="canvas-wrap"><div class="canvas" id="canvas"></div></div>`;
   canvasEl=document.getElementById('canvas');
-  renderSeats(); setupDrag();
+  renderSeats();
+  if(IS_ADMIN) setupDrag();
+  else setupClickOnly();
 }
 
 function renderSeats(){
   if(!canvasEl)return;
   const seats=allSeats.filter(s=>s.room===curRoom);
-  let maxB=0; canvasEl.innerHTML='';
-  seats.forEach(s=>{
-    const isPub=s.seat_no.toString().startsWith('pub_'), isOcc=!isPub&&s.user;
+  const decos=loadDecos(curRoom);
+  let maxB=0;
+  canvasEl.innerHTML='';
+
+  // 장식 요소 렌더링
+  decos.forEach(d=>{
     const el=document.createElement('div');
-    el.className='seat'+(isPub?' pub':isOcc?' occ':' empty')+(delMode&&isPub?' del-mode':'');
+    el.className=`deco ${d.type||'etc'}${IS_ADMIN?' draggable':''}`;
+    el.style.cssText=`left:${d.x||0}px;top:${d.y||0}px;width:${d.w||120}px;height:${d.h||36}px`;
+    el.dataset.decoId=d.id;
+    el.textContent=d.label;
+    if(IS_ADMIN){
+      const delBtn=document.createElement('span');
+      delBtn.className='deco-del';
+      delBtn.textContent='×';
+      delBtn.onclick=(e)=>{e.stopPropagation();deleteDeco(d.id);};
+      el.appendChild(delBtn);
+    }
+    canvasEl.appendChild(el);
+    const b=(d.y||0)+(d.h||36);if(b>maxB)maxB=b;
+  });
+
+  // 자리 렌더링
+  seats.forEach(s=>{
+    const isPub=s.seat_no.toString().startsWith('pub_'),isOcc=!isPub&&s.user;
+    const el=document.createElement('div');
+    const dragClass=IS_ADMIN?' draggable':' clickable';
+    el.className='seat'+(isPub?' pub':isOcc?' occ':' empty')+dragClass+(delMode&&isPub?' del-mode':'');
     el.style.cssText=`left:${s.x||0}px;top:${s.y||0}px;width:${SEAT_W}px`;
     el.dataset.seatNo=s.seat_no;
     el.innerHTML=`<div class="seat-type">${isPub?'공용':`${s.seat_no}번 자리`}</div>
       <div class="seat-label">${isPub?(s.label||'공용'):(s.user||'(미사용)')}</div>
       <div class="seat-sub">${s.pc?'PC …'+String(s.pc).slice(-6):''}</div>`;
     canvasEl.appendChild(el);
-    const b=(s.y||0)+SEAT_H; if(b>maxB)maxB=b;
+    const b=(s.y||0)+SEAT_H;if(b>maxB)maxB=b;
   });
   canvasEl.style.minHeight=(maxB+40)+'px';
   updateStats();
@@ -448,7 +501,19 @@ function updateStats(){
   renderRoomTabs();
 }
 
-// ── 드래그 ──
+// 일반 사용자: 클릭만
+function setupClickOnly(){
+  if(!canvasEl)return;
+  canvasEl.addEventListener('click',e=>{
+    const seatEl=e.target.closest('.seat');
+    if(!seatEl)return;
+    const sno=seatEl.dataset.seatNo;
+    const s=allSeats.find(x=>x.room===curRoom&&String(x.seat_no)===String(sno));
+    if(s)openSeatModal(s);
+  });
+}
+
+// 관리자: 드래그 + 클릭
 function setupDrag(){
   if(!canvasEl)return;
   canvasEl.addEventListener('mousedown',onDS);
@@ -459,36 +524,61 @@ function setupDrag(){
   document.addEventListener('touchend',onDE);
 }
 function pt(e){return e.touches?{x:e.touches[0].clientX,y:e.touches[0].clientY}:{x:e.clientX,y:e.clientY};}
+
 function onDS(e){
-  const el=e.target.closest('.seat');if(!el)return;
+  const seatEl=e.target.closest('.seat,.deco');
+  if(!seatEl||e.target.classList.contains('deco-del'))return;
   e.preventDefault();dragMoved=false;
-  const sno=el.dataset.seatNo;
-  const s=allSeats.find(x=>x.room===curRoom&&String(x.seat_no)===String(sno));
+  const isDeco=seatEl.classList.contains('deco');
+  const id=isDeco?seatEl.dataset.decoId:seatEl.dataset.seatNo;
+  let obj;
+  if(isDeco){
+    const decos=loadDecos(curRoom);
+    obj=decos.find(d=>d.id===id);
+  } else {
+    obj=allSeats.find(x=>x.room===curRoom&&String(x.seat_no)===String(id));
+  }
   const r=canvasEl.getBoundingClientRect(),p=pt(e);
-  dragOffX=p.x-r.left-(s.x||0);dragOffY=p.y-r.top-(s.y||0);
-  dragging={sno,seat:s,el};el.classList.add('dragging');
+  dragOffX=p.x-r.left-(obj.x||0);dragOffY=p.y-r.top-(obj.y||0);
+  dragging={id,el:seatEl,obj,isDeco};seatEl.classList.add('dragging');
 }
+
+const GRID = 10; // 격자 간격 (px)
+function snap(v){return Math.round(v/GRID)*GRID;}
+
 function onDM(e){
   if(!dragging)return;e.preventDefault();dragMoved=true;
   const r=canvasEl.getBoundingClientRect(),p=pt(e);
-  let nx=p.x-r.left-dragOffX,ny=p.y-r.top-dragOffY;
-  nx=Math.max(0,Math.min(nx,canvasEl.offsetWidth-SEAT_W));ny=Math.max(0,ny);
-  dragging.seat.x=nx;dragging.seat.y=ny;
+  let nx=snap(Math.max(0,p.x-r.left-dragOffX));
+  let ny=snap(Math.max(0,p.y-r.top-dragOffY));
+  dragging.obj.x=nx;dragging.obj.y=ny;
   dragging.el.style.left=nx+'px';dragging.el.style.top=ny+'px';
-  canvasEl.style.minHeight=(ny+SEAT_H+40)+'px';
-  if(!pendingLayout[curRoom])pendingLayout[curRoom]={};
-  pendingLayout[curRoom][dragging.sno]={x:nx,y:ny};
+  canvasEl.style.minHeight=(ny+100)+'px';
+  if(dragging.isDeco){
+    const decos=loadDecos(curRoom);
+    const d=decos.find(x=>x.id===dragging.id);
+    if(d){d.x=nx;d.y=ny;saveDecos(curRoom,decos);}
+  } else {
+    if(!pendingLayout[curRoom])pendingLayout[curRoom]={};
+    pendingLayout[curRoom][dragging.id]={x:nx,y:ny};
+  }
 }
+
 async function onDE(){
   if(!dragging)return;
   dragging.el.classList.remove('dragging');
   if(!dragMoved){
-    const isPub=dragging.sno.toString().startsWith('pub_');
-    if(delMode&&isPub)await deletePubDirect(dragging.seat);
-    else openSeatModal(dragging.seat);
-  }else await flushLayout();
+    if(!dragging.isDeco){
+      const isPub=dragging.id.toString().startsWith('pub_');
+      if(delMode&&isPub)await deletePubDirect(dragging.obj);
+      else openSeatModal(dragging.obj);
+    }
+  } else if(!dragging.isDeco){
+    await flushLayout();
+  }
   dragging=null;
 }
+
 async function flushLayout(){
   if(!pendingLayout[curRoom])return;
   const seats=Object.entries(pendingLayout[curRoom]).map(([seat_no,pos])=>({seat_no,x:pos.x,y:pos.y}));
@@ -496,20 +586,54 @@ async function flushLayout(){
   delete pendingLayout[curRoom];
 }
 
-// ── 삭제 모드 ──
+// 삭제 모드
 function toggleDelMode(){
   delMode=!delMode;renderSeats();
   const b=document.getElementById('del-btn');
-  if(b){b.textContent=delMode?'✕ 삭제 모드':'공용 박스 삭제';b.classList.toggle('danger-mode',delMode);}
+  if(b){b.textContent=delMode?'✕ 삭제 모드':'요소 삭제';b.classList.toggle('danger-mode',delMode);}
+  if(IS_ADMIN)setupDrag();
 }
 async function deletePubDirect(seat){
   if(!confirm(`"${seat.label||'공용 박스'}"를 삭제할까요?`))return;
   await apiPost({action:'deletePublic',room:curRoom,seat_no:seat.seat_no});
   allSeats=allSeats.filter(s=>!(s.room===curRoom&&s.seat_no===seat.seat_no));
-  renderSeats();
+  renderSeats();if(IS_ADMIN)setupDrag();
 }
 
-// ── 자리 모달 ──
+// 장식 관련
+function openDecoModal(){
+  document.getElementById('dm-label').value='';
+  document.getElementById('dm-w').value='120';
+  document.getElementById('dm-h').value='36';
+  document.getElementById('dm-err').textContent='';
+  decoType='window';
+  document.querySelectorAll('.deco-type-btn').forEach(b=>b.classList.toggle('selected',b.dataset.type==='window'));
+  document.getElementById('deco-modal').classList.add('open');
+}
+function closeDecoModal(){document.getElementById('deco-modal').classList.remove('open');}
+function selectDecoType(btn){
+  decoType=btn.dataset.type;
+  document.querySelectorAll('.deco-type-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+function saveDeco(){
+  const label=document.getElementById('dm-label').value.trim();
+  if(!label){document.getElementById('dm-err').textContent='이름을 입력해주세요.';return;}
+  const w=parseInt(document.getElementById('dm-w').value)||120;
+  const h=parseInt(document.getElementById('dm-h').value)||36;
+  const decos=loadDecos(curRoom);
+  const maxY=decos.reduce((m,d)=>Math.max(m,(d.y||0)+(d.h||36)),0);
+  decos.push({id:'deco_'+Date.now(),type:decoType,label,w,h,x:0,y:maxY+10});
+  saveDecos(curRoom,decos);
+  closeDecoModal();renderSeats();if(IS_ADMIN)setupDrag();
+}
+function deleteDeco(id){
+  if(!confirm('이 요소를 삭제할까요?'))return;
+  const decos=loadDecos(curRoom).filter(d=>d.id!==id);
+  saveDecos(curRoom,decos);renderSeats();if(IS_ADMIN)setupDrag();
+}
+
+// 자리 모달
 function openSeatModal(seat){
   editSeat=seat;
   const isPub=seat.seat_no.toString().startsWith('pub_');
@@ -523,7 +647,7 @@ function openSeatModal(seat){
   document.getElementById('sm-mon').value=seat.monitor||'';
   document.getElementById('sm-err').textContent='';
   document.getElementById('sm-btn-clear').style.display=(!isPub&&seat.user)?'':'none';
-  document.getElementById('sm-btn-delpub').style.display=isPub?'':'none';
+  document.getElementById('sm-btn-delpub').style.display=(isPub&&IS_ADMIN)?'':'none';
   document.getElementById('sm-btn-save').textContent='저장';
   document.getElementById('sm-btn-save').onclick=saveSeat;
   document.getElementById('seat-modal').classList.add('open');
@@ -553,20 +677,20 @@ async function saveSeat(){
   if(res.error){document.getElementById('sm-err').textContent=res.error;document.getElementById('sm-btn-save').disabled=false;document.getElementById('sm-btn-save').textContent='저장';return;}
   const s=allSeats.find(x=>x.room===curRoom&&String(x.seat_no)===String(editSeat.seat_no));
   if(s){s.user=user;s.pc=pc;s.monitor=mon;if(isPub)s.label=label;}
-  closeSeatModal();renderSeats();
+  closeSeatModal();renderSeats();if(IS_ADMIN)setupDrag();
 }
 async function clearSeat(){
   if(!confirm('자리를 비울까요?'))return;
   await apiPost({action:'updateSeat',room:curRoom,seat_no:editSeat.seat_no,user:'',pc:'',monitor:''});
   const s=allSeats.find(x=>x.room===curRoom&&String(x.seat_no)===String(editSeat.seat_no));
   if(s){s.user='';s.pc='';s.monitor='';}
-  closeSeatModal();renderSeats();
+  closeSeatModal();renderSeats();if(IS_ADMIN)setupDrag();
 }
 async function deletePub(){
   if(!confirm('공용 박스를 삭제할까요?'))return;
   await apiPost({action:'deletePublic',room:curRoom,seat_no:editSeat.seat_no});
   allSeats=allSeats.filter(s=>!(s.room===curRoom&&String(s.seat_no)===String(editSeat.seat_no)));
-  closeSeatModal();renderSeats();
+  closeSeatModal();renderSeats();if(IS_ADMIN)setupDrag();
 }
 function openAddPublic(){
   editSeat={seat_no:'pub_new',room:curRoom,label:'',user:'',pc:'',monitor:'',x:0,y:0};
@@ -594,22 +718,20 @@ async function saveNewPublic(){
   if(res.error){document.getElementById('sm-err').textContent=res.error;document.getElementById('sm-btn-save').disabled=false;return;}
   const fresh=await apiFetch({action:'getRoom',room:curRoom});
   allSeats=allSeats.filter(s=>s.room!==curRoom).concat(fresh.seats||[]);
-  closeSeatModal();renderSeats();
+  closeSeatModal();renderSeats();if(IS_ADMIN)setupDrag();
 }
 
-// ── 원격PC실 로그 ──
+// 로그
 function showRemote(){topMode='remote';delMode=false;renderRoomTabs();renderRemote();}
 function renderRemote(q=''){
   const logs=allLogs.filter(l=>!q||[l.name,l.lab,l.contact,l.pc_asset,l.memo].some(v=>v&&v.toLowerCase().includes(q.toLowerCase())));
   const rows=logs.length===0
     ?`<tr><td colspan="8" class="log-empty">등록된 사용 기록이 없습니다.</td></tr>`
     :[...logs].reverse().map(l=>`<tr>
-        <td><strong>${l.name}</strong></td>
-        <td>${l.lab}</td>
+        <td><strong>${l.name}</strong></td><td>${l.lab}</td>
         <td style="color:var(--text2)">${l.contact}</td>
         <td style="font-size:12px;color:var(--text3);font-family:monospace">${l.pc_asset}</td>
-        <td>${l.start_date}</td>
-        <td>${l.end_date}</td>
+        <td>${l.start_date}</td><td>${l.end_date}</td>
         <td style="color:var(--text2)">${l.memo||'—'}</td>
         <td><span class="edit-link" onclick="openEditLog('${l.id}')">수정</span></td>
       </tr>`).join('');
@@ -688,9 +810,13 @@ async function saveLog(){
   closeLogModal();renderRemote();
 }
 function today(){return new Date().toISOString().slice(0,10);}
-['seat-modal','log-modal'].forEach(id=>{
+['seat-modal','deco-modal','log-modal'].forEach(id=>{
   document.getElementById(id).addEventListener('click',e=>{
-    if(e.target===document.getElementById(id)){id==='seat-modal'?closeSeatModal():closeLogModal();}
+    if(e.target===document.getElementById(id)){
+      if(id==='seat-modal')closeSeatModal();
+      else if(id==='deco-modal')closeDecoModal();
+      else closeLogModal();
+    }
   });
 });
 init();
