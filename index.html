@@ -533,8 +533,7 @@ function onDS(e){
   const id=isDeco?seatEl.dataset.decoId:seatEl.dataset.seatNo;
   let obj;
   if(isDeco){
-    const decos=loadDecos(curRoom);
-    obj=decos.find(d=>d.id===id);
+    obj=allDecos.find(d=>d.id===id);
   } else {
     obj=allSeats.find(x=>x.room===curRoom&&String(x.seat_no)===String(id));
   }
