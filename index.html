@@ -574,8 +574,8 @@ async function onDE(){
     }
   } else {
     if(dragging.isDeco){
-      // deco 위치 저장
       await apiPost({action:'updateDecoLayout',decos:[{id:dragging.id,x:dragging.obj.x,y:dragging.obj.y}]});
+      renderSeats();if(IS_ADMIN)setupDrag();
     } else {
       await flushLayout();
     }
