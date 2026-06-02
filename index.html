@@ -87,8 +87,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .hint{font-size:11px;color:var(--text3);margin-right:4px}
 
 /* 배치도 */
-.canvas-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;overflow:auto;min-height:300px;box-shadow:var(--shadow)}
-.canvas{position:relative;min-height:260px}
+.canvas-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;overflow:auto;min-height:100px;box-shadow:var(--shadow)}
+.canvas{position:relative;min-height:60px}
 
 /* 자리 카드 */
 .seat{position:absolute;width:122px;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;user-select:none;transition:box-shadow .15s,border-color .15s;box-shadow:var(--shadow)}
@@ -353,7 +353,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </div>
 
 <script>
-const API_URL = 'https://script.google.com/macros/s/AKfycbyjLSWgOOs86ijHpvAEV8vl8F0dcPX_r1nRCUirO1CSZKCJyDZPEEcrkQV8AjxsSl0uvg/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbzL6rbZRMMHXaFlTUEywZRxyfDCRLWw9ixJ3qtGN_x7LSA0pxv52se-kLJ4c_xjl1zTuQ/exec';
 const ROOMS = ['프라임관 101','프라임관 102','프라임관 206','프라임관 207','프라임관 602','프라임관 603','프라임관 702'];
 const REMOTE = '프라임관 703';
 const SEAT_W = 122, SEAT_H = 80;
@@ -366,9 +366,9 @@ let dragging=null, dragOffX=0, dragOffY=0, dragMoved=false;
 let editSeat=null, editLogId=null, canvasEl=null, pendingLayout={};
 let decoType='window';
 
-// 장식 데이터 (localStorage에 저장)
-function loadDecos(room){try{return JSON.parse(localStorage.getItem('decos_'+room)||'[]');}catch(e){return[];}}
-function saveDecos(room,decos){try{localStorage.setItem('decos_'+room,JSON.stringify(decos));}catch(e){}}
+// 장식 데이터 - Sheets에서 관리
+let allDecos = [];
+function roomDecos(room){ return allDecos.filter(d=>d.room===room); }
 
 async function apiFetch(p){const r=await fetch(API_URL+'?'+new URLSearchParams(p));return r.json();}
 async function apiPost(b){const r=await fetch(API_URL,{method:'POST',body:JSON.stringify(b)});return r.json();}
@@ -382,7 +382,7 @@ function toggleNotice(id){
 async function init(){
   if(IS_ADMIN) document.getElementById('admin-badge').style.display='';
   const d=await apiFetch({action:'getAll'});
-  allSeats=d.seats||[];allLogs=d.logs||[];
+  allSeats=d.seats||[];allLogs=d.logs||[];allDecos=d.decos||[];
   renderRoomTabs();selectRoom(ROOMS[0]);
 }
 
@@ -453,7 +453,7 @@ function renderRoom(){
 function renderSeats(){
   if(!canvasEl)return;
   const seats=allSeats.filter(s=>s.room===curRoom);
-  const decos=loadDecos(curRoom);
+  const decos=roomDecos(curRoom);
   let maxB=0;
   canvasEl.innerHTML='';
 
@@ -555,9 +555,9 @@ function onDM(e){
   dragging.el.style.left=nx+'px';dragging.el.style.top=ny+'px';
   canvasEl.style.minHeight=(ny+100)+'px';
   if(dragging.isDeco){
-    const decos=loadDecos(curRoom);
-    const d=decos.find(x=>x.id===dragging.id);
-    if(d){d.x=nx;d.y=ny;saveDecos(curRoom,decos);}
+    const d=allDecos.find(x=>x.id===dragging.id);
+    if(d){d.x=nx;d.y=ny;}
+    // 위치는 mouseup에서 일괄 저장
   } else {
     if(!pendingLayout[curRoom])pendingLayout[curRoom]={};
     pendingLayout[curRoom][dragging.id]={x:nx,y:ny};
@@ -573,8 +573,13 @@ async function onDE(){
       if(delMode&&isPub)await deletePubDirect(dragging.obj);
       else openSeatModal(dragging.obj);
     }
-  } else if(!dragging.isDeco){
-    await flushLayout();
+  } else {
+    if(dragging.isDeco){
+      // deco 위치 저장
+      await apiPost({action:'updateDecoLayout',decos:[{id:dragging.id,x:dragging.obj.x,y:dragging.obj.y}]});
+    } else {
+      await flushLayout();
+    }
   }
   dragging=null;
 }
@@ -616,21 +621,22 @@ function selectDecoType(btn){
   document.querySelectorAll('.deco-type-btn').forEach(b=>b.classList.remove('selected'));
   btn.classList.add('selected');
 }
-function saveDeco(){
+async function saveDeco(){
   const label=document.getElementById('dm-label').value.trim();
   if(!label){document.getElementById('dm-err').textContent='이름을 입력해주세요.';return;}
   const w=parseInt(document.getElementById('dm-w').value)||120;
   const h=parseInt(document.getElementById('dm-h').value)||36;
-  const decos=loadDecos(curRoom);
-  const maxY=decos.reduce((m,d)=>Math.max(m,(d.y||0)+(d.h||36)),0);
-  decos.push({id:'deco_'+Date.now(),type:decoType,label,w,h,x:0,y:maxY+10});
-  saveDecos(curRoom,decos);
+  const maxY=roomDecos(curRoom).reduce((m,d)=>Math.max(m,(d.y||0)+(d.h||36)),0);
+  const res=await apiPost({action:'addDeco',room:curRoom,type:decoType,label,w,h,x:0,y:maxY+10});
+  if(res.error){document.getElementById('dm-err').textContent=res.error;return;}
+  allDecos.push({id:res.id,room:curRoom,type:decoType,label,w,h,x:0,y:maxY+10});
   closeDecoModal();renderSeats();if(IS_ADMIN)setupDrag();
 }
-function deleteDeco(id){
+async function deleteDeco(id){
   if(!confirm('이 요소를 삭제할까요?'))return;
-  const decos=loadDecos(curRoom).filter(d=>d.id!==id);
-  saveDecos(curRoom,decos);renderSeats();if(IS_ADMIN)setupDrag();
+  await apiPost({action:'deleteDeco',id});
+  allDecos=allDecos.filter(d=>d.id!==id);
+  renderSeats();if(IS_ADMIN)setupDrag();
 }
 
 // 자리 모달
