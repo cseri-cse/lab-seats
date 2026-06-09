@@ -332,6 +332,35 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
 </div>
 
+<!-- IP 모달 -->
+<div class="modal-bg" id="ip-modal">
+  <div class="modal">
+    <h3>IP 등록</h3>
+    <div class="modal-sub">모든 <span class="req">*</span> 항목은 필수입니다.</div>
+    <div class="field"><label>사용자 이름 <span class="req">*</span></label><input id="im-name" placeholder="홍길동"/></div>
+    <div class="field">
+      <label>연구실 <span class="req">*</span></label>
+      <select id="im-room">
+        <option value="">선택하세요</option>
+        <option>프라임관 101</option>
+        <option>프라임관 102</option>
+        <option>프라임관 206</option>
+        <option>프라임관 207</option>
+        <option>프라임관 602</option>
+        <option>프라임관 603</option>
+        <option>프라임관 702</option>
+        <option>프라임관 703</option>
+      </select>
+    </div>
+    <div class="field"><label>IP 주소 <span class="req">*</span></label><input id="im-ip" placeholder="예: 210.125.93.10"/></div>
+    <div class="err-msg" id="im-err"></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeIpModal()">취소</button>
+      <button class="btn primary" id="im-btn-save" onclick="saveIp()">등록</button>
+    </div>
+  </div>
+</div>
+
 <!-- 로그 모달 -->
 <div class="modal-bg" id="log-modal">
   <div class="modal">
@@ -353,7 +382,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </div>
 
 <script>
-const API_URL = 'https://script.google.com/macros/s/AKfycbzL6rbZRMMHXaFlTUEywZRxyfDCRLWw9ixJ3qtGN_x7LSA0pxv52se-kLJ4c_xjl1zTuQ/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbyh2cz_OwP8R51D2Cw3MRS68dn4BqjPBbWU7wMIled540-I8n36cMO98xry_I_XuTkYJQ/exec';
 const ROOMS = ['프라임관 101','프라임관 102','프라임관 206','프라임관 207','프라임관 602','프라임관 603','프라임관 702'];
 const REMOTE = '프라임관 703';
 const SEAT_W = 122, SEAT_H = 80;
@@ -368,6 +397,7 @@ let decoType='window';
 
 // 장식 데이터 - Sheets에서 관리
 let allDecos = [];
+let allIps = [];
 function roomDecos(room){ return allDecos.filter(d=>d.room===room); }
 
 async function apiFetch(p){const r=await fetch(API_URL+'?'+new URLSearchParams(p));return r.json();}
@@ -382,7 +412,7 @@ function toggleNotice(id){
 async function init(){
   if(IS_ADMIN) document.getElementById('admin-badge').style.display='';
   const d=await apiFetch({action:'getAll'});
-  allSeats=d.seats||[];allLogs=d.logs||[];allDecos=d.decos||[];
+  allSeats=d.seats||[];allLogs=d.logs||[];allDecos=d.decos||[];allIps=d.ips||[];
   renderRoomTabs();selectRoom(ROOMS[0]);
 }
 
@@ -394,6 +424,7 @@ function renderRoomTabs(){
     h+=`<button class="rtab${topMode==='room'&&curRoom===r?' active':''}" onclick="selectRoom('${r}')">${r}${empty>0?`<span class="eb">${empty}</span>`:''}</button>`;
   });
   h+=`<button class="rtab remote${topMode==='remote'?' active':''}" onclick="showRemote()">${REMOTE}</button>`;
+  h+=`<button class="rtab${topMode==='ip'?' active':''}" style="${topMode==='ip'?'background:#1d4ed8;border-color:#1d4ed8;color:#fff':''}" onclick="showIp()">🌐 IP 관리</button>`;
   el.innerHTML=h;
 }
 
@@ -815,11 +846,82 @@ async function saveLog(){
   closeLogModal();renderRemote();
 }
 function today(){return new Date().toISOString().slice(0,10);}
-['seat-modal','deco-modal','log-modal'].forEach(id=>{
+
+// IP 관리
+function showIp(){topMode='ip';delMode=false;renderRoomTabs();renderIp();}
+function renderIp(q=''){
+  const ips=allIps.filter(l=>!q||[l.name,l.room,l.ip].some(v=>v&&v.toLowerCase().includes(q.toLowerCase())));
+  // 중복 IP 찾기
+  const ipCount={};
+  allIps.forEach(x=>{ipCount[x.ip]=(ipCount[x.ip]||0)+1;});
+  const rows=ips.length===0
+    ?`<tr><td colspan="5" class="log-empty">등록된 IP 정보가 없습니다.</td></tr>`
+    :ips.map(l=>{
+      const isDup=ipCount[l.ip]>1;
+      return `<tr style="${isDup?'background:#fef2f2':''}">
+        <td><strong>${l.name}</strong></td>
+        <td>${l.room}</td>
+        <td style="font-family:monospace;font-size:13px;${isDup?'color:var(--danger);font-weight:700':''}">${l.ip}${isDup?' ⚠️ 중복':''}</td>
+        <td style="color:var(--text3);font-size:12px">${l.created_at}</td>
+        <td><span class="edit-link" style="color:var(--danger);background:var(--danger-light)" onclick="deleteIp('${l.id}','${l.name}','${l.ip}')">삭제</span></td>
+      </tr>`;
+    }).join('');
+
+  const dupCount=Object.values(ipCount).filter(v=>v>1).length;
+  document.getElementById('view-main').innerHTML=`
+    <div class="log-wrap">
+      <div class="log-toolbar">
+        <h3>IP 관리 <span style="font-weight:400;color:var(--text3);font-size:12px">총 ${allIps.length}건</span>${dupCount>0?`<span style="margin-left:8px;font-size:12px;color:var(--danger);font-weight:600">⚠️ 중복 IP ${dupCount}건</span>`:''}</h3>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <input class="search-box" placeholder="이름·연구실·IP 검색" oninput="renderIp(this.value)" value="${q}"/>
+          <button class="tool-btn accent" onclick="openAddIp()">＋ IP 등록</button>
+        </div>
+      </div>
+      <div class="log-table-wrap">
+        <table class="log-table">
+          <thead><tr><th>사용자</th><th>연구실</th><th>IP 주소</th><th>등록일</th><th></th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>`;
+}
+function openAddIp(){
+  document.getElementById('im-name').value='';
+  document.getElementById('im-room').value='';
+  document.getElementById('im-ip').value='';
+  document.getElementById('im-err').textContent='';
+  document.getElementById('im-btn-save').disabled=false;
+  document.getElementById('im-btn-save').textContent='등록';
+  document.getElementById('ip-modal').classList.add('open');
+}
+function closeIpModal(){document.getElementById('ip-modal').classList.remove('open');}
+async function saveIp(){
+  const name=document.getElementById('im-name').value.trim();
+  const room=document.getElementById('im-room').value.trim();
+  const ip=document.getElementById('im-ip').value.trim();
+  if(!name||!room||!ip){document.getElementById('im-err').textContent='모든 항목을 입력해주세요.';return;}
+  // 간단한 IP 형식 체크
+  if(!/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(ip)){document.getElementById('im-err').textContent='올바른 IP 형식으로 입력해주세요. (예: 210.125.93.10)';return;}
+  document.getElementById('im-btn-save').disabled=true;
+  document.getElementById('im-btn-save').textContent='등록 중...';
+  const res=await apiPost({action:'addIp',name,room,ip});
+  if(res.error){document.getElementById('im-err').textContent=res.error;document.getElementById('im-btn-save').disabled=false;document.getElementById('im-btn-save').textContent='등록';return;}
+  allIps.push({id:res.id,name,room,ip,created_at:today()});
+  closeIpModal();renderIp();
+}
+async function deleteIp(id,name,ip){
+  if(!confirm(`${name}의 IP(${ip})를 삭제할까요?`))return;
+  await apiPost({action:'deleteIp',id});
+  allIps=allIps.filter(x=>x.id!==id);
+  renderIp();
+}
+
+['seat-modal','deco-modal','log-modal','ip-modal'].forEach(id=>{
   document.getElementById(id).addEventListener('click',e=>{
     if(e.target===document.getElementById(id)){
       if(id==='seat-modal')closeSeatModal();
       else if(id==='deco-modal')closeDecoModal();
+      else if(id==='ip-modal')closeIpModal();
       else closeLogModal();
     }
   });

@@ -16,6 +16,7 @@ const SPREADSHEET_ID = '1MmMYiPfmAHWmyiHlBr7d7s4gO-5LclylHnSW8uZzGdo';
 const SEATS_SHEET = 'seats';
 const LOGS_SHEET  = 'logs';
 const DECOS_SHEET = 'decos';
+const IPS_SHEET   = 'ips';
 
 const ROOM_CONFIG = {
   '프라임관 101':  6,
@@ -33,6 +34,7 @@ const SEAT_W = 124, SEAT_H = 86, GAP = 14, COLS = 4;
 const SEATS_HEADERS = ['room', 'seat_no', 'label', 'user', 'pc', 'monitor', 'x', 'y'];
 const LOGS_HEADERS  = ['id', 'name', 'lab', 'contact', 'pc_asset', 'start_date', 'end_date', 'memo', 'created_at'];
 const DECOS_HEADERS = ['id', 'room', 'type', 'label', 'w', 'h', 'x', 'y'];
+const IPS_HEADERS   = ['id', 'name', 'room', 'ip', 'created_at'];
 
 // ─────────────────────────────────────────
 // GET
@@ -41,7 +43,7 @@ function doGet(e) {
   try {
     const action = e.parameter.action || 'getAll';
     if (action === 'getAll') {
-      return respond({ seats: readAllSeats(), logs: readAllLogs(), decos: readAllDecos() });
+      return respond({ seats: readAllSeats(), logs: readAllLogs(), decos: readAllDecos(), ips: readAllIps() });
     }
     if (action === 'getRoom') {
       const room = e.parameter.room;
@@ -115,6 +117,21 @@ function doPost(e) {
     }
     if (action === 'deleteDeco') {
       deleteDecoRow(body.id);
+      return respond({ success: true });
+    }
+
+    // ── ips ──
+    if (action === 'addIp') {
+      if (!body.name || !body.room || !body.ip)
+        return respond({ error: '모든 항목을 입력해주세요.' });
+      const existing = readAllIps().find(x => x.ip === body.ip);
+      if (existing)
+        return respond({ error: `이미 사용 중인 IP입니다. (${existing.name} / ${existing.room})`, duplicate: true });
+      const id = addIpRow(body);
+      return respond({ success: true, id });
+    }
+    if (action === 'deleteIp') {
+      deleteIpRow(body.id);
       return respond({ success: true });
     }
 
@@ -308,4 +325,43 @@ function initDecosOnly() {
   decosSheet.getRange(1,1,1,DECOS_HEADERS.length).setFontWeight('bold').setBackground('#d9ead3');
   decosSheet.setFrozenRows(1);
   Logger.log('decos 시트 생성 완료!');
+}
+
+// ─────────────────────────────────────────
+// ips 내부 함수
+// ─────────────────────────────────────────
+function readAllIps() {
+  const sheet = getSheet(IPS_SHEET);
+  const values = sheet.getDataRange().getValues();
+  if (values.length <= 1) return [];
+  return values.slice(1).map(row => ({
+    id: row[0], name: row[1], room: row[2], ip: row[3], created_at: formatDate(row[4]),
+  }));
+}
+function addIpRow(body) {
+  const sheet = getSheet(IPS_SHEET);
+  const id = 'ip_' + new Date().getTime();
+  sheet.appendRow([id, body.name, body.room, body.ip, new Date()]);
+  return id;
+}
+function deleteIpRow(id) {
+  const sheet = getSheet(IPS_SHEET);
+  const values = sheet.getDataRange().getValues();
+  for (let i = values.length - 1; i >= 1; i--) {
+    if (values[i][0] === id) { sheet.deleteRow(i + 1); return; }
+  }
+}
+
+// ─────────────────────────────────────────
+// [추가] ips 시트만 새로 생성 (기존 데이터 유지)
+// ─────────────────────────────────────────
+function initIpsOnly() {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  let ipsSheet = ss.getSheetByName(IPS_SHEET);
+  if (ipsSheet) ss.deleteSheet(ipsSheet);
+  ipsSheet = ss.insertSheet(IPS_SHEET);
+  ipsSheet.appendRow(IPS_HEADERS);
+  ipsSheet.getRange(1,1,1,IPS_HEADERS.length).setFontWeight('bold').setBackground('#cfe2f3');
+  ipsSheet.setFrozenRows(1);
+  Logger.log('ips 시트 생성 완료!');
 }
