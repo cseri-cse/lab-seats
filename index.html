@@ -18,7 +18,6 @@
 }
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 .app{max-width:1040px;margin:0 auto;padding:28px 20px}
-.sticky-top{position:sticky;top:0;z-index:50;background:var(--bg);padding-top:28px;margin-top:-28px}
 
 /* 헤더 */
 .header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px}
@@ -74,9 +73,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .rtab.active{background:var(--primary);color:#fff;border-color:var(--primary)}
 .rtab.remote.active{background:var(--green);border-color:var(--green)}
 .rtab .eb{position:absolute;top:-5px;right:-5px;background:var(--danger);color:#fff;font-size:9px;border-radius:999px;min-width:15px;height:15px;display:flex;align-items:center;justify-content:center;padding:0 3px;font-weight:700}
-
-/* 통계+툴바 고정 */
-.room-sticky{position:sticky;top:0;z-index:30;background:var(--bg);padding-bottom:10px}
 
 /* 통계 */
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
@@ -183,7 +179,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </head>
 <body>
 <div class="app">
-<div class="sticky-top">
   <div class="header">
     <div class="header-left">
       <h1>연구실 좌석 관리</h1>
@@ -303,7 +298,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div class="room-tabs-wrap">
     <div class="room-tabs" id="room-tabs"></div>
   </div>
-</div>
 
 <div id="view-main"><div class="loading">데이터 불러오는 중...</div></div>
 </div>
