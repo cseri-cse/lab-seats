@@ -322,11 +322,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <input id="sm-user" placeholder="이름 입력"/>
     </div>
     <div class="field">
-      <label>PC 자산번호 <span style="color:var(--text3);font-weight:400">(선택)</span></label>
+      <label id="sm-pc-label">PC 자산번호</label>
       <input id="sm-pc" placeholder="예: 2021-0908-0013 또는 2024-22-202-00017-1"/>
     </div>
     <div class="field">
-      <label>모니터 자산번호 <span style="color:var(--text3);font-weight:400">(선택)</span></label>
+      <label id="sm-mon-label">모니터 자산번호</label>
       <input id="sm-mon" placeholder="예: 2021-0908-0019 또는 2024-22-202-00017-1"/>
     </div>
     <div class="err-msg" id="sm-err"></div>
@@ -718,10 +718,26 @@ function openSeatModal(seat){
   document.getElementById('sm-sub').textContent=isPub?'자산번호를 입력하세요.':'이름과 자산번호를 모두 입력하세요.';
   document.getElementById('sm-field-label').style.display=isPub?'':'none';
   document.getElementById('sm-field-user').style.display=isPub?'none':'';
+  // PC/모니터 라벨: 관리자+공용박스추가는 선택, 나머지는 필수
+  const isAddingPub = isPub && editSeat.seat_no === 'pub_new' && IS_ADMIN;
+  const pcReq = isAddingPub
+    ? `PC 자산번호 <span style="color:var(--text3);font-weight:400">(선택)</span>`
+    : `PC 자산번호 <span class="req">*</span>`;
+  const monReq = isAddingPub
+    ? `모니터 자산번호 <span style="color:var(--text3);font-weight:400">(선택)</span>`
+    : `모니터 자산번호 <span class="req">*</span>`;
+  document.getElementById('sm-pc-label').innerHTML = pcReq;
+  document.getElementById('sm-mon-label').innerHTML = monReq;
+  if(!IS_ADMIN&&isPub) document.getElementById('sm-sub').textContent='이름과 자산번호를 모두 입력하세요.';
   document.getElementById('sm-label').value=seat.label||'';
   document.getElementById('sm-user').value=seat.user||'';
   document.getElementById('sm-pc').value=seat.pc||'';
   document.getElementById('sm-mon').value=seat.monitor||'';
+  // 일반 자리는 항상 필수
+  if(!isPub){
+    document.getElementById('sm-pc-label').innerHTML=`PC 자산번호 <span class="req">*</span>`;
+    document.getElementById('sm-mon-label').innerHTML=`모니터 자산번호 <span class="req">*</span>`;
+  }
   document.getElementById('sm-err').textContent='';
   document.getElementById('sm-btn-clear').style.display=(!isPub&&seat.user)?'':'none';
   document.getElementById('sm-btn-delpub').style.display=(isPub&&IS_ADMIN)?'':'none';
@@ -737,8 +753,9 @@ function validateSeat(){
   const u=document.getElementById('sm-user').value.trim();
   const p=document.getElementById('sm-pc').value.trim();
   const m=document.getElementById('sm-mon').value.trim();
-  // 공용 박스: 이름만 필수 / 일반 자리: 이름+PC+모니터 필수
-  document.getElementById('sm-btn-save').disabled=isPub?!l:!(u&&p&&m);
+  // 관리자+공용박스추가: 이름만 필수 / 그 외: 모두 필수
+  const isAddingPub = isPub && editSeat.seat_no === 'pub_new' && IS_ADMIN;
+  document.getElementById('sm-btn-save').disabled=isAddingPub?!l:isPub?!(l&&p&&m):!(u&&p&&m);
 }
 function closeSeatModal(){document.getElementById('seat-modal').classList.remove('open');editSeat=null;}
 async function saveSeat(){
