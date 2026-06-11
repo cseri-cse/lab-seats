@@ -59,6 +59,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .nc-list li a{color:var(--primary);text-decoration:none}
 .nc-list li a:hover{text-decoration:underline}
 
+/* 필독 카드 */
+.nc-required{border:1.5px solid #fca5a5;background:#fff5f5}
+.nc-required .nc-header{background:#fff5f5}
+.nc-required .nc-header:hover{background:#fee2e2}
+.nc-required .nc-inner{border-top:1px solid #fca5a5}
+.required-badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;background:#dc2626;color:#fff;margin-right:6px;vertical-align:middle;letter-spacing:.03em}
+
 /* 탭 */
 .room-tabs-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;margin-bottom:16px;box-shadow:var(--shadow)}
 .room-tabs{display:flex;flex-wrap:wrap;gap:5px}
@@ -195,6 +202,36 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div class="notice-section">
     <div class="notice-section-title">공지 및 안내</div>
     <div class="notice-grid">
+
+      <!-- 필독: 운영 규정 -->
+      <div class="nc nc-required">
+        <div class="nc-header" onclick="toggleNotice('n4')">
+          <div class="nc-icon" style="background:#fef2f2;color:#dc2626">📌</div>
+          <div class="nc-meta">
+            <div class="nc-title"><span class="required-badge">필독</span> 연구실 운영 규정</div>
+            <div class="nc-desc">좌석 배정 및 연구실 구조 변경 규정</div>
+          </div>
+          <span class="nc-chevron" id="chev-n4">▼</span>
+        </div>
+        <div class="nc-body" id="n4">
+          <div class="nc-inner">
+            <ul class="nc-list">
+              <li><strong>(1) 좌석 배정</strong></li>
+              <li>연구실 좌석은 공정한 배정을 위해 추첨 방식으로 배정한다.</li>
+              <li>좌석 배정이 필요한 인원에 대해 우선순위를 추첨한 후, 추첨 순서에 따라 원하는 좌석을 선택한다.</li>
+              <li>배정 완료 후 개인 희망에 의한 좌석 변경은 원칙적으로 제한하며, 필요한 경우 학기 단위로 검토한다.</li>
+              <li>휴학, 장기 연수와 같이 한 학기 이상 연구실 사용이 어려운 경우에는 좌석을 반납하여야 하며, 복학 및 연수 복귀 이후 재배정할 수 있다.</li>
+              <li>지정 좌석 사용이 어려운 학생 또는 상시 좌석이 필요하지 않은 학생의 경우, 별도로 지정된 공용 좌석을 공동으로 사용할 수 있다.</li>
+              <li style="margin-top:6px"><strong>(2) 연구실 구조 변경</strong></li>
+              <li>연구실 좌석 및 집기 배치는 구성원 모두가 최대한 동등하게 공간을 사용할 수 있도록 공간 활용도, 동선, 전기·네트워크 환경 등을 종합적으로 고려하여 결정하였다.</li>
+              <li class="warn">책상, 파티션, 서랍 등 연구실 집기의 임의 이동 및 구조 변경은 불가하다.</li>
+              <li>공간 구조 및 집기 배치와 관련된 개선 의견은 학기 단위로 취합하며, 연구원 및 교수진의 검토를 거쳐 반영 여부를 결정한다.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- 자산 안내 -->
       <div class="nc">
         <div class="nc-header" onclick="toggleNotice('n1')">
           <div class="nc-icon asset">📦</div>
@@ -217,6 +254,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           </div>
         </div>
       </div>
+
+      <!-- 연구실 사용 정보 -->
       <div class="nc">
         <div class="nc-header" onclick="toggleNotice('n2')">
           <div class="nc-icon info">📋</div>
@@ -237,6 +276,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           </div>
         </div>
       </div>
+
+      <!-- IP 정보 -->
       <div class="nc">
         <div class="nc-header" onclick="toggleNotice('n3')">
           <div class="nc-icon ip">🌐</div>
@@ -256,6 +297,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           </div>
         </div>
       </div>
+
     </div>
   </div>
 
@@ -696,7 +738,8 @@ function validateSeat(){
   const u=document.getElementById('sm-user').value.trim();
   const p=document.getElementById('sm-pc').value.trim();
   const m=document.getElementById('sm-mon').value.trim();
-  document.getElementById('sm-btn-save').disabled=isPub?!(l&&p&&m):!(u&&p&&m);
+  // 공용 박스: 이름만 필수 / 일반 자리: 이름+PC+모니터 필수
+  document.getElementById('sm-btn-save').disabled=isPub?!l:!(u&&p&&m);
 }
 function closeSeatModal(){document.getElementById('seat-modal').classList.remove('open');editSeat=null;}
 async function saveSeat(){
@@ -705,7 +748,7 @@ async function saveSeat(){
   const user=document.getElementById('sm-user').value.trim();
   const pc=document.getElementById('sm-pc').value.trim();
   const mon=document.getElementById('sm-mon').value.trim();
-  if(isPub&&(!label||!pc||!mon)){document.getElementById('sm-err').textContent='모든 항목을 입력해주세요.';return;}
+  if(isPub&&!label){document.getElementById('sm-err').textContent='박스 이름을 입력해주세요.';return;}
   if(!isPub&&(!user||!pc||!mon)){document.getElementById('sm-err').textContent='모든 항목을 입력해주세요.';return;}
   document.getElementById('sm-btn-save').disabled=true;
   document.getElementById('sm-btn-save').textContent='저장 중...';
@@ -731,7 +774,7 @@ async function deletePub(){
 function openAddPublic(){
   editSeat={seat_no:'pub_new',room:curRoom,label:'',user:'',pc:'',monitor:'',x:0,y:0};
   document.getElementById('sm-title').textContent='공용 박스 추가';
-  document.getElementById('sm-sub').textContent='공용 PC, 프린터, 서버 등에 사용하세요.';
+  document.getElementById('sm-sub').textContent='이름만 입력해도 추가됩니다. 자산번호는 나중에 입력 가능해요.';
   document.getElementById('sm-field-label').style.display='';
   document.getElementById('sm-field-user').style.display='none';
   ['sm-label','sm-pc','sm-mon'].forEach(id=>document.getElementById(id).value='');
@@ -741,13 +784,17 @@ function openAddPublic(){
   document.getElementById('sm-btn-save').textContent='추가';
   document.getElementById('sm-btn-save').onclick=saveNewPublic;
   document.getElementById('seat-modal').classList.add('open');
-  validateSeat();
+  // 이름만 필수로 변경
+  document.getElementById('sm-btn-save').disabled=false;
+  document.getElementById('sm-label').oninput=()=>{
+    document.getElementById('sm-btn-save').disabled=!document.getElementById('sm-label').value.trim();
+  };
 }
 async function saveNewPublic(){
   const label=document.getElementById('sm-label').value.trim();
   const pc=document.getElementById('sm-pc').value.trim();
   const mon=document.getElementById('sm-mon').value.trim();
-  if(!label||!pc||!mon){document.getElementById('sm-err').textContent='모든 항목을 입력해주세요.';return;}
+  if(!label){document.getElementById('sm-err').textContent='박스 이름을 입력해주세요.';return;}
   document.getElementById('sm-btn-save').disabled=true;
   const maxY=allSeats.filter(s=>s.room===curRoom).reduce((m,s)=>Math.max(m,s.y||0),0);
   const res=await apiPost({action:'addPublic',room:curRoom,label,pc,monitor:mon,x:0,y:maxY+SEAT_H+14});
