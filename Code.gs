@@ -71,9 +71,13 @@ function doPost(e) {
 
     // ── seats ──
     if (action === 'updateSeat') {
-      if (!body.user || !body.pc || !body.monitor)
+      // 일반 자리: user/pc/monitor 필수 / 공용 박스: label만 필수
+      const isPub = String(body.seat_no).startsWith('pub_');
+      if (!isPub && (!body.user || !body.pc || !body.monitor))
         return respond({ error: '모든 항목을 입력해주세요.' });
-      updateSeatRow(body.room, body.seat_no, { user: body.user, pc: body.pc, monitor: body.monitor });
+      if (isPub && !body.label)
+        return respond({ error: '박스 이름을 입력해주세요.' });
+      updateSeatRow(body.room, body.seat_no, { user: body.user||'', pc: body.pc||'', monitor: body.monitor||'', label: body.label });
       return respond({ success: true });
     }
     if (action === 'updateLayout') {
@@ -81,8 +85,8 @@ function doPost(e) {
       return respond({ success: true });
     }
     if (action === 'addPublic') {
-      if (!body.label || !body.pc || !body.monitor)
-        return respond({ error: '모든 항목을 입력해주세요.' });
+      if (!body.label)
+        return respond({ error: '박스 이름을 입력해주세요.' });
       addPublicRow(body.room, body);
       return respond({ success: true });
     }
