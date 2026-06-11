@@ -16,6 +16,7 @@
   --radius:12px;--radius-sm:8px;
   --shadow:0 1px 4px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.04);
 }
+html{overflow-y:scroll}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 .app{max-width:1040px;margin:0 auto;padding:28px 20px}
 
@@ -633,7 +634,9 @@ async function onDE(){
   if(!dragging)return;
   dragging.el.classList.remove('dragging');
   if(!dragMoved){
-    if(!dragging.isDeco){
+    if(dragging.isDeco){
+      openDecoEditModal(dragging.id);
+    } else {
       const isPub=dragging.id.toString().startsWith('pub_');
       if(delMode&&isPub)await deletePubDirect(dragging.obj);
       else openSeatModal(dragging.obj);
@@ -678,6 +681,9 @@ function openDecoModal(){
   document.getElementById('dm-err').textContent='';
   decoType='window';
   document.querySelectorAll('.deco-type-btn').forEach(b=>b.classList.toggle('selected',b.dataset.type==='window'));
+  const saveBtn=document.querySelector('#deco-modal .btn.primary');
+  saveBtn.textContent='추가';
+  saveBtn.onclick=saveDeco;
   document.getElementById('deco-modal').classList.add('open');
 }
 function closeDecoModal(){document.getElementById('deco-modal').classList.remove('open');}
@@ -686,6 +692,30 @@ function selectDecoType(btn){
   document.querySelectorAll('.deco-type-btn').forEach(b=>b.classList.remove('selected'));
   btn.classList.add('selected');
 }
+function openDecoEditModal(id){
+  const deco=allDecos.find(d=>d.id===id);if(!deco)return;
+  document.getElementById('dm-label').value=deco.label||'';
+  document.getElementById('dm-w').value=deco.w||120;
+  document.getElementById('dm-h').value=deco.h||36;
+  document.getElementById('dm-err').textContent='';
+  decoType=deco.type||'etc';
+  document.querySelectorAll('.deco-type-btn').forEach(b=>b.classList.toggle('selected',b.dataset.type===decoType));
+  const saveBtn=document.querySelector('#deco-modal .btn.primary');
+  saveBtn.textContent='수정';
+  saveBtn.onclick=()=>updateDeco(id);
+  document.getElementById('deco-modal').classList.add('open');
+}
+async function updateDeco(id){
+  const label=document.getElementById('dm-label').value.trim();
+  if(!label){document.getElementById('dm-err').textContent='이름을 입력해주세요.';return;}
+  const w=parseInt(document.getElementById('dm-w').value)||120;
+  const h=parseInt(document.getElementById('dm-h').value)||36;
+  const d=allDecos.find(x=>x.id===id);
+  await apiPost({action:'updateDecoLayout',decos:[{id,x:d?.x||0,y:d?.y||0,label,type:decoType,w,h}]});
+  if(d){d.label=label;d.type=decoType;d.w=w;d.h=h;}
+  closeDecoModal();renderSeats();if(IS_ADMIN)setupDrag();
+}
+
 async function saveDeco(){
   const label=document.getElementById('dm-label').value.trim();
   if(!label){document.getElementById('dm-err').textContent='이름을 입력해주세요.';return;}
