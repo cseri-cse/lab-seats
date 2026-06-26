@@ -39,7 +39,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .menu-item{display:flex;align-items:center;gap:7px;padding:7px 14px 7px 26px;font-size:12px;color:var(--text2);cursor:pointer;transition:all .15s;border-left:2px solid transparent;font-weight:500;position:relative}
 .menu-item:hover{background:var(--bg);color:var(--text)}
 .menu-item.active{color:var(--primary);background:var(--primary-light);border-left-color:var(--primary)}
-.menu-item .eb{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:var(--danger);color:#fff;font-size:9px;border-radius:999px;min-width:15px;height:15px;display:flex;align-items:center;justify-content:center;padding:0 3px;font-weight:700}
+.menu-item .seat-count{margin-left:auto;font-size:11px;color:#60a5fa;font-weight:500}
 .menu-divider{height:1px;background:var(--border);margin:6px 14px}
 .sidebar-footer{padding:12px 14px;border-top:1px solid var(--border)}
 .legend{display:flex;flex-direction:column;gap:5px}
@@ -227,7 +227,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <!-- 3. 원격PC실 -->
       <div class="menu-section">
         <div class="menu-section-btn" onclick="showView('remote','v-remote',this)">
-          <span class="ms-left">🖥 원격PC실 (703호)</span>
+          <span class="ms-left">🖥️ 원격PC실 (703호)</span>
         </div>
       </div>
 
@@ -410,14 +410,15 @@ function updateMenuBadges(){
   ROOMS.forEach(r=>{
     const el=document.getElementById('tab-'+r);
     if(!el)return;
-    const empty=allSeats.filter(s=>s.room===r&&!s.seat_no.toString().startsWith('pub_')&&!s.user).length;
-    const existing=el.querySelector('.eb');
+    const seats=allSeats.filter(s=>s.room===r&&!s.seat_no.toString().startsWith('pub_'));
+    const occ=seats.filter(s=>s.user).length;
+    const total=seats.length;
+    const existing=el.querySelector('.seat-count');
     if(existing)existing.remove();
-    if(empty>0){
-      const b=document.createElement('span');
-      b.className='eb';b.textContent=empty;
-      el.appendChild(b);
-    }
+    const span=document.createElement('span');
+    span.className='seat-count';
+    span.textContent=`(${occ}/${total})`;
+    el.appendChild(span);
   });
 }
 
