@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>연구실 좌석 관리</title>
+<title>연구실 관리</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -17,71 +17,70 @@
   --shadow:0 1px 4px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.04);
 }
 html{overflow-y:scroll}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
-.app{max-width:1040px;margin:0 auto;padding:28px 20px}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
 
-/* 헤더 */
-.header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px}
-.header-left h1{font-size:22px;font-weight:700;letter-spacing:-.4px}
-.header-left p{font-size:12px;color:var(--text3);margin-top:3px}
-.header-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.legend{display:flex;gap:14px;font-size:12px;color:var(--text2);align-items:center;background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:6px 14px}
-.dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px;vertical-align:middle}
-.admin-badge{font-size:11px;font-weight:700;padding:5px 12px;border-radius:999px;background:#fef9c3;color:#854d0e;border:1px solid #fde047}
+/* ── 레이아웃 ── */
+.layout{display:flex;min-height:100vh}
 
-/* 공지사항 */
-.notice-section{margin-bottom:16px}
-.notice-section-title{font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px;padding-left:2px}
-.notice-grid{display:flex;flex-direction:column;gap:6px}
-.nc{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
-.nc-header{display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer;user-select:none;transition:background .15s}
-.nc-header:hover{background:#fafafa}
-.nc-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
-.nc-icon.asset{background:#EEEDFE;color:var(--primary)}
-.nc-icon.info{background:#dcfce7;color:var(--green)}
-.nc-icon.ip{background:#fff7ed;color:var(--orange)}
-.nc-meta{flex:1;min-width:0}
-.nc-title{font-size:13px;font-weight:600;color:var(--text)}
-.nc-desc{font-size:11px;color:var(--text3);margin-top:1px}
-.nc-chevron{font-size:11px;color:var(--text3);transition:transform .22s;flex-shrink:0}
-.nc-chevron.open{transform:rotate(180deg)}
-.nc-body{max-height:0;overflow:hidden;transition:max-height .3s ease}
-.nc-body.open{max-height:500px}
-.nc-inner{padding:0 16px 14px;border-top:1px solid var(--border)}
-.nc-list{list-style:none;display:flex;flex-direction:column;gap:5px;padding-top:10px}
-.nc-list li{font-size:12.5px;color:var(--text2);line-height:1.65;display:flex;gap:8px;align-items:flex-start}
-.nc-list li::before{content:'•';color:var(--text3);flex-shrink:0;margin-top:1px}
-.nc-list li.warn{color:var(--danger);font-weight:600}
-.nc-list li.warn::before{content:'⚠️';font-size:11px}
-.nc-list li.sub{color:var(--text3);font-size:12px;padding-left:16px}
+/* ── 사이드바 ── */
+.sidebar{width:200px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sidebar-header{padding:18px 14px 12px;border-bottom:1px solid var(--border)}
+.sidebar-header h1{font-size:15px;font-weight:700;color:var(--text);letter-spacing:-.3px}
+.sidebar-header p{font-size:11px;color:var(--text3);margin-top:3px}
+.admin-badge{display:none;font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;background:#fef9c3;color:#854d0e;border:1px solid #fde047;margin-top:6px}
+.sidebar-body{flex:1;padding:8px 0}
+.menu-section{margin-bottom:2px}
+.menu-section-btn{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;font-size:12px;font-weight:700;color:var(--text);cursor:pointer;transition:background .15s;user-select:none}
+.menu-section-btn:hover{background:var(--bg)}
+.menu-section-btn .ms-left{display:flex;align-items:center;gap:7px}
+.menu-chevron{font-size:10px;color:var(--text3);transition:transform .2s}
+.menu-chevron.open{transform:rotate(180deg)}
+.submenu{overflow:hidden;transition:max-height .25s ease}
+.menu-item{display:flex;align-items:center;gap:7px;padding:7px 14px 7px 26px;font-size:12px;color:var(--text2);cursor:pointer;transition:all .15s;border-left:2px solid transparent;font-weight:500;position:relative}
+.menu-item:hover{background:var(--bg);color:var(--text)}
+.menu-item.active{color:var(--primary);background:var(--primary-light);border-left-color:var(--primary)}
+.menu-item .eb{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:var(--danger);color:#fff;font-size:9px;border-radius:999px;min-width:15px;height:15px;display:flex;align-items:center;justify-content:center;padding:0 3px;font-weight:700}
+.menu-divider{height:1px;background:var(--border);margin:6px 14px}
+.sidebar-footer{padding:12px 14px;border-top:1px solid var(--border)}
+.legend{display:flex;flex-direction:column;gap:5px}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text2)}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* ── 메인 ── */
+.main{flex:1;padding:24px;min-width:0}
+.main-header{margin-bottom:16px}
+.main-header h2{font-size:20px;font-weight:700;color:var(--text);letter-spacing:-.3px}
+.main-header p{font-size:12px;color:var(--text3);margin-top:3px}
+
+/* ── 공지 ── */
+.notice-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)}
+.notice-panel-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:12px;display:flex;align-items:center;gap:7px}
+.required-badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;background:var(--danger);color:#fff;letter-spacing:.03em}
+.nc-list{list-style:none;display:flex;flex-direction:column;gap:6px}
+.nc-list li{font-size:13px;color:var(--text2);line-height:1.65;display:block;padding-left:14px;position:relative}
+.nc-list li::before{content:'•';position:absolute;left:0;color:var(--text3)}
+.nc-list li.warn{color:var(--danger);font-weight:600;display:block}
+.nc-list li.warn::before{content:'⚠️ '}
+.nc-list li.sub{color:var(--text3);font-size:12px}
 .nc-list li.sub::before{content:'↳'}
 .nc-list li strong{color:var(--text);font-weight:600}
 .nc-list li a{color:var(--primary);text-decoration:none}
 .nc-list li a:hover{text-decoration:underline}
 
-/* 필독 카드 */
-.nc-required{border:1.5px solid #fca5a5;background:#fff5f5}
-.nc-required .nc-header{background:#fff5f5}
-.nc-required .nc-header:hover{background:#fee2e2}
-.nc-required .nc-inner{border-top:1px solid #fca5a5}
-.required-badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;background:#dc2626;color:#fff;margin-right:6px;vertical-align:middle;letter-spacing:.03em}
+/* ── 카드키 테이블 ── */
+.key-table{width:100%;border-collapse:collapse;font-size:13px}
+.key-table th{text-align:left;padding:8px 12px;color:var(--text2);font-weight:600;font-size:11px;border-bottom:1px solid var(--border);background:#fafafa}
+.key-table td{padding:8px 12px;border-bottom:1px solid var(--border);color:var(--text)}
+.key-table tr:last-child td{border-bottom:none}
+.key-table tr:hover td{background:#fafafa}
 
-/* 탭 */
-.room-tabs-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;margin-bottom:16px;box-shadow:var(--shadow)}
-.room-tabs{display:flex;flex-wrap:wrap;gap:5px}
-.rtab{font-size:12px;padding:5px 13px;border-radius:999px;border:1px solid transparent;background:transparent;color:var(--text2);cursor:pointer;transition:all .15s;position:relative;font-weight:500}
-.rtab:hover{background:var(--bg);border-color:var(--border)}
-.rtab.active{background:var(--primary);color:#fff;border-color:var(--primary)}
-.rtab.remote.active{background:var(--green);border-color:var(--green)}
-.rtab .eb{position:absolute;top:-5px;right:-5px;background:var(--danger);color:#fff;font-size:9px;border-radius:999px;min-width:15px;height:15px;display:flex;align-items:center;justify-content:center;padding:0 3px;font-weight:700}
-
-/* 통계 */
+/* ── 통계 ── */
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
 .stat{background:var(--surface);border-radius:var(--radius);padding:14px 16px;text-align:center;border:1px solid var(--border);box-shadow:var(--shadow)}
 .stat-val{font-size:24px;font-weight:700;letter-spacing:-.5px}
 .stat-lbl{font-size:11px;color:var(--text3);margin-top:3px;font-weight:500}
 
-/* 툴바 */
+/* ── 툴바 ── */
 .toolbar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
 .tool-btn{font-size:12px;padding:6px 14px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;display:flex;align-items:center;gap:5px;font-weight:500;transition:all .15s;box-shadow:var(--shadow)}
 .tool-btn:hover{background:var(--bg)}
@@ -90,11 +89,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .tool-btn.accent:hover{background:#3a3490}
 .hint{font-size:11px;color:var(--text3);margin-right:4px}
 
-/* 배치도 */
+/* ── 배치도 ── */
 .canvas-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;overflow:auto;min-height:100px;box-shadow:var(--shadow)}
 .canvas{position:relative;min-height:60px}
-
-/* 자리 카드 */
 .seat{position:absolute;width:122px;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;user-select:none;transition:box-shadow .15s,border-color .15s;box-shadow:var(--shadow)}
 .seat.clickable{cursor:pointer}
 .seat.clickable:hover{border-color:var(--primary-border);box-shadow:0 4px 12px rgba(75,68,168,.1)}
@@ -110,29 +107,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .seat.pub .seat-type{color:var(--orange)}
 .seat-label{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text)}
 .seat-sub{font-size:10px;color:var(--text3);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-
-/* 장식 요소 (문/창문/회의테이블 등) */
 .deco{position:absolute;user-select:none;display:flex;align-items:center;justify-content:center;border-radius:var(--radius-sm);font-size:11px;font-weight:600;color:var(--text3);border:1.5px dashed var(--border);background:rgba(240,242,248,.7)}
 .deco.draggable{cursor:grab}
-.deco.draggable:active{cursor:grabbing}
 .deco.window{background:rgba(219,234,254,.5);border-color:#93c5fd;color:#1d4ed8}
 .deco.door{background:rgba(220,252,231,.5);border-color:#86efac;color:#166534}
 .deco.table{background:rgba(254,243,199,.5);border-color:#fcd34d;color:#92400e}
 .deco.etc{background:rgba(243,244,246,.7);border-color:#d1d5db;color:#6b7280}
-.deco-del{position:absolute;top:-6px;right:-6px;width:16px;height:16px;border-radius:50%;background:var(--danger);color:#fff;font-size:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:10;display:none}
+.deco-del{position:absolute;top:-6px;right:-6px;width:16px;height:16px;border-radius:50%;background:var(--danger);color:#fff;font-size:10px;display:none;align-items:center;justify-content:center;cursor:pointer;z-index:10}
 .deco:hover .deco-del{display:flex}
 
-/* 전체 현황 */
-.ov-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+/* ── 전체 현황 ── */
+.ov-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
 .ov-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;cursor:pointer;transition:all .18s;box-shadow:var(--shadow)}
 .ov-card:hover{border-color:var(--primary);transform:translateY(-1px)}
-.ov-card.remote-card:hover{border-color:var(--green)}
 .ov-name{font-size:13px;font-weight:700;margin-bottom:10px}
 .ov-bar-bg{background:var(--bg);border-radius:999px;height:5px;margin-bottom:7px;overflow:hidden}
 .ov-bar{background:var(--primary);border-radius:999px;height:5px;transition:width .4s}
 .ov-nums{font-size:12px;color:var(--text2);font-weight:500}
 
-/* 로그 */
+/* ── 로그 ── */
 .log-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
 .log-toolbar{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:10px;background:#fafafa}
 .log-toolbar h3{font-size:14px;font-weight:700}
@@ -147,7 +140,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .log-empty{text-align:center;padding:48px;color:var(--text3);font-size:13px}
 .edit-link{font-size:11px;color:var(--primary);cursor:pointer;font-weight:600;padding:3px 8px;border-radius:5px;background:var(--primary-light)}
 
-/* 모달 */
+/* ── IP ── */
+.ip-dup{background:var(--danger-light)}
+
+/* ── 모달 ── */
 .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(2px)}
 .modal-bg.open{display:flex}
 .modal{background:var(--surface);border-radius:16px;padding:26px;width:340px;max-width:92vw;box-shadow:0 12px 40px rgba(0,0,0,.18);max-height:90vh;overflow-y:auto}
@@ -170,137 +166,87 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .btn.danger{color:var(--danger);border-color:#fca5a5}
 .btn.danger:hover{background:var(--danger-light)}
 .loading{text-align:center;padding:60px;color:var(--text3);font-size:13px}
-
-/* 장식 추가 모달 */
 .deco-types{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:4px}
 .deco-type-btn{padding:10px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:var(--surface);cursor:pointer;text-align:center;font-size:12px;font-weight:600;transition:all .15s}
 .deco-type-btn:hover{border-color:var(--primary)}
 .deco-type-btn.selected{border-color:var(--primary);background:var(--primary-light);color:var(--primary)}
+#view-main{width:100%}
 </style>
 </head>
 <body>
-<div class="app">
-  <div class="header">
-    <div class="header-left">
-      <h1>연구실 좌석 관리</h1>
+<div class="layout">
+
+  <!-- ── 사이드바 ── -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h1>연구실 관리</h1>
       <p>미융기/융보공 대학원 · 프라임관</p>
+      <div id="admin-badge" class="admin-badge">🔧 관리자 모드</div>
     </div>
-    <div class="header-right">
-      <div id="admin-badge" style="display:none" class="admin-badge">🔧 관리자 모드</div>
+
+    <div class="sidebar-body">
+
+      <!-- 1. 공지 및 안내 -->
+      <div class="menu-section">
+        <div class="menu-section-btn" onclick="toggleMenu('m1')">
+          <span class="ms-left">📋 공지 및 안내</span>
+          <span class="menu-chevron open" id="chev-m1">▾</span>
+        </div>
+        <div class="submenu" id="m1" style="max-height:300px">
+          <div class="menu-item active" onclick="showView('notice','v-rules',this)">📌 운영 규정</div>
+          <div class="menu-item" onclick="showView('notice','v-asset',this)">📦 사용 자산</div>
+          <div class="menu-item" onclick="showView('notice','v-lab',this)">📋 연구실 정보</div>
+          <div class="menu-item" onclick="showView('notice','v-key',this)">🔑 카드키/열쇠</div>
+          <div class="menu-item" onclick="showView('notice','v-net',this)">🌐 네트워크/IP</div>
+        </div>
+      </div>
+
+      <div class="menu-divider"></div>
+
+      <!-- 2. 연구실 좌석 -->
+      <div class="menu-section">
+        <div class="menu-section-btn" onclick="toggleMenu('m2')">
+          <span class="ms-left">🪑 연구실 좌석</span>
+          <span class="menu-chevron open" id="chev-m2">▾</span>
+        </div>
+        <div class="submenu" id="m2" style="max-height:400px">
+          <div class="menu-item" onclick="showView('seat','v-ov',this)">전체 현황</div>
+          <div class="menu-item" id="tab-프라임관 101" onclick="showView('seat','v-room',this,'프라임관 101')">프라임관 101</div>
+          <div class="menu-item" id="tab-프라임관 102" onclick="showView('seat','v-room',this,'프라임관 102')">프라임관 102</div>
+          <div class="menu-item" id="tab-프라임관 206" onclick="showView('seat','v-room',this,'프라임관 206')">프라임관 206</div>
+          <div class="menu-item" id="tab-프라임관 207" onclick="showView('seat','v-room',this,'프라임관 207')">프라임관 207</div>
+          <div class="menu-item" id="tab-프라임관 602" onclick="showView('seat','v-room',this,'프라임관 602')">프라임관 602</div>
+          <div class="menu-item" id="tab-프라임관 603" onclick="showView('seat','v-room',this,'프라임관 603')">프라임관 603</div>
+          <div class="menu-item" id="tab-프라임관 702" onclick="showView('seat','v-room',this,'프라임관 702')">프라임관 702</div>
+          <div class="menu-item" onclick="showView('seat','v-ip',this)">🌐 IP 관리</div>
+        </div>
+      </div>
+
+      <div class="menu-divider"></div>
+
+      <!-- 3. 원격PC실 -->
+      <div class="menu-section">
+        <div class="menu-section-btn" onclick="showView('remote','v-remote',this)">
+          <span class="ms-left">🖥 원격PC실 (703호)</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="sidebar-footer">
       <div class="legend">
-        <span><span class="dot" style="background:var(--primary)"></span>사용 중</span>
-        <span><span class="dot" style="background:#fbbf24"></span>공용</span>
-        <span><span class="dot" style="background:#d4d4d8"></span>미사용</span>
+        <div class="legend-item"><span class="dot" style="background:var(--primary)"></span>사용 중</div>
+        <div class="legend-item"><span class="dot" style="background:#fbbf24"></span>공용</div>
+        <div class="legend-item"><span class="dot" style="background:#d4d4d8"></span>미사용</div>
       </div>
     </div>
   </div>
 
-  <div class="notice-section">
-    <div class="notice-section-title">공지 및 안내</div>
-    <div class="notice-grid">
-
-      <!-- 필독: 운영 규정 -->
-      <div class="nc nc-required">
-        <div class="nc-header" onclick="toggleNotice('n4')">
-          <div class="nc-icon" style="background:#fef2f2;color:#dc2626">📌</div>
-          <div class="nc-meta">
-            <div class="nc-title"><span class="required-badge">필독</span> 연구실 운영 규정</div>
-            <div class="nc-desc">좌석 배정 및 연구실 구조 변경 규정</div>
-          </div>
-          <span class="nc-chevron" id="chev-n4">▼</span>
-        </div>
-        <div class="nc-body" id="n4">
-          <div class="nc-inner">
-            <ul class="nc-list">
-              <li><strong>(1) 좌석 배정</strong></li>
-              <li>연구실 좌석은 공정한 배정을 위해 추첨 방식으로 배정한다.</li>
-              <li>좌석 배정이 필요한 인원에 대해 우선순위를 추첨한 후, 추첨 순서에 따라 원하는 좌석을 선택한다.</li>
-              <li>배정 완료 후 개인 희망에 의한 좌석 변경은 원칙적으로 제한하며, 필요한 경우 학기 단위로 검토한다.</li>
-              <li>휴학, 장기 연수와 같이 한 학기 이상 연구실 사용이 어려운 경우에는 좌석을 반납하여야 하며, 복학 및 연수 복귀 이후 재배정할 수 있다.</li>
-              <li>지정 좌석 사용이 어려운 학생 또는 상시 좌석이 필요하지 않은 학생의 경우, 별도로 지정된 공용 좌석을 공동으로 사용할 수 있다.</li>
-              <li style="margin-top:6px"><strong>(2) 연구실 구조 변경</strong></li>
-              <li>연구실 좌석 및 집기 배치는 공간 활용도, 동선, 전기·네트워크 환경 등을 종합적으로 고려하여 구성원 모두가 동등하게 공간을 사용할 수 있도록 결정하였으며, 이에 따라 아래 사항을 준수하여 주시기 바랍니다.</li>
-              <li class="warn">책상, 파티션, 서랍 등 연구실 집기의 임의 이동 및 구조 변경은 불가하다.</li>
-              <li>공간 구조 및 집기 배치와 관련된 개선 의견은 학기 단위로 취합하며, 연구원 및 교수진의 검토를 거쳐 반영 여부를 결정한다.</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      <!-- 자산 안내 -->
-      <div class="nc">
-        <div class="nc-header" onclick="toggleNotice('n1')">
-          <div class="nc-icon asset">📦</div>
-          <div class="nc-meta">
-            <div class="nc-title">사용 자산 관련 안내</div>
-            <div class="nc-desc">자산번호 기입 방법 및 주의사항</div>
-          </div>
-          <span class="nc-chevron" id="chev-n1">▼</span>
-        </div>
-        <div class="nc-body" id="n1">
-          <div class="nc-inner">
-            <ul class="nc-list">
-              <li>연구실 별 좌석 배치도를 확인하고, 본인 자리의 정보를 채워주세요.</li>
-              <li>자산 스티커가 없는 경우 <strong>(-)</strong> 로 표시해주시기 바랍니다.</li>
-              <li>자산이 두 개인 경우 <strong>" / "</strong> 로 구분하여 자산 번호 모두 기입 바랍니다.</li>
-              <li>공용 PC 기입이 필요한 경우 <a href="mailto:cseri@sungshin.ac.kr">cseri@sungshin.ac.kr</a> 로 연구실(호실명), 서버이름(관리자 이름) 정보를 전달해주시면 작성 가능하도록 생성해드리겠습니다.</li>
-              <li class="warn">자산 임의 이동 불가</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      <!-- 연구실 사용 정보 -->
-      <div class="nc">
-        <div class="nc-header" onclick="toggleNotice('n2')">
-          <div class="nc-icon info">📋</div>
-          <div class="nc-meta">
-            <div class="nc-title">연구실 사용 관련 정보</div>
-            <div class="nc-desc">복합기 연결 등 사용 안내</div>
-          </div>
-          <span class="nc-chevron" id="chev-n2">▼</span>
-        </div>
-        <div class="nc-body" id="n2">
-          <div class="nc-inner">
-            <ul class="nc-list">
-              <li><a href="https://drive.google.com/drive/folders/1Cx0dPkIZXaMnYyshWCU1M6EVMwBsdOFW?usp=drive_link" target="_blank">🗂 좌석 배치도</a></li>
-              <li><a href="https://drive.google.com/drive/folders/1giGkK9QOa_k2ATBzNYcx-R2jCcg2YMyh?usp=drive_link" target="_blank">🖨 복합기 연결</a></li>
-              <li class="sub">각 연구실도 동일 방법으로 복합기 정보만 변경하면 연결됩니다.</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      <!-- IP 정보 -->
-      <div class="nc">
-        <div class="nc-header" onclick="toggleNotice('n3')">
-          <div class="nc-icon ip">🌐</div>
-          <div class="nc-meta">
-            <div class="nc-title">네트워크 및 IP 정보</div>
-            <div class="nc-desc">IP 할당 및 설정 방법</div>
-          </div>
-          <span class="nc-chevron" id="chev-n3">▼</span>
-        </div>
-        <div class="nc-body" id="n3">
-          <div class="nc-inner">
-            <ul class="nc-list">
-              <li><a href="https://drive.google.com/file/d/1aGaEaJw5YbENcU-2HdONTmHHK5atVweu/view?usp=drive_link" target="_blank">📄 IP 설정 방법</a></li>
-              <li>IP 주소는 IT운영팀에 요청하여 할당 받아야 네트워크 사용이 가능합니다.</li>
-              <li>할당 요청 시 필요한 <strong>IP 수량</strong>과 <strong>사용 연구실</strong>을 함께 전달해주세요.</li>
-              <li>📧 <a href="mailto:cseri@sungshin.ac.kr">cseri@sungshin.ac.kr</a></li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-    </div>
+  <!-- ── 메인 ── -->
+  <div class="main">
+    <div id="view-main"><div class="loading">데이터 불러오는 중...</div></div>
   </div>
 
-  <div class="room-tabs-wrap">
-    <div class="room-tabs" id="room-tabs"></div>
-  </div>
-
-<div id="view-main"><div class="loading">데이터 불러오는 중...</div></div>
 </div>
 
 <!-- 자리 모달 -->
@@ -334,11 +280,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
 </div>
 
-<!-- 장식 추가 모달 (관리자 전용) -->
+<!-- 장식 모달 -->
 <div class="modal-bg" id="deco-modal">
   <div class="modal">
-    <h3>장식 요소 추가</h3>
-    <div class="modal-sub">문, 창문, 회의테이블 등 배치도 구성 요소를 추가하세요.</div>
+    <h3>장식 요소</h3>
+    <div class="modal-sub">문, 창문, 회의테이블 등 배치도 구성 요소</div>
     <div class="field">
       <label>종류</label>
       <div class="deco-types">
@@ -350,7 +296,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
     <div class="field">
       <label>표시 이름 <span class="req">*</span></label>
-      <input id="dm-label" placeholder="예: 창문, 출입문, 회의테이블"/>
+      <input id="dm-label" placeholder="예: 창문, 출입문"/>
     </div>
     <div class="field">
       <label>가로 크기 (px)</label>
@@ -363,7 +309,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="err-msg" id="dm-err"></div>
     <div class="modal-actions">
       <button class="btn" onclick="closeDecoModal()">취소</button>
-      <button class="btn primary" onclick="saveDeco()">추가</button>
+      <button class="btn primary" id="dm-save-btn" onclick="saveDeco()">추가</button>
     </div>
   </div>
 </div>
@@ -378,14 +324,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <label>연구실 <span class="req">*</span></label>
       <select id="im-room">
         <option value="">선택하세요</option>
-        <option>프라임관 101</option>
-        <option>프라임관 102</option>
-        <option>프라임관 206</option>
-        <option>프라임관 207</option>
-        <option>프라임관 602</option>
-        <option>프라임관 603</option>
-        <option>프라임관 702</option>
-        <option>프라임관 703</option>
+        <option>프라임관 101</option><option>프라임관 102</option>
+        <option>프라임관 206</option><option>프라임관 207</option>
+        <option>프라임관 602</option><option>프라임관 603</option>
+        <option>프라임관 702</option><option>프라임관 703</option>
       </select>
     </div>
     <div class="field"><label>IP 주소 <span class="req">*</span></label><input id="im-ip" placeholder="예: 210.125.93.10"/></div>
@@ -400,7 +342,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <!-- 로그 모달 -->
 <div class="modal-bg" id="log-modal">
   <div class="modal">
-    <h3 id="lm-title">원격PC실 사용 등록</h3>
+    <h3 id="lm-title">프라임관 703 사용 등록</h3>
     <div class="modal-sub">모든 <span class="req">*</span> 항목은 필수입니다.</div>
     <div class="field"><label>사용자 이름 <span class="req">*</span></label><input id="lm-name" placeholder="홍길동"/></div>
     <div class="field"><label>소속 연구실 <span class="req">*</span></label><input id="lm-lab" placeholder="예: 김교수 연구실"/></div>
@@ -408,7 +350,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="field" id="lm-field-pc"><label>PC 자산번호 <span class="req">*</span></label><input id="lm-pc" placeholder="예: 2021-0908-0013"/></div>
     <div class="field"><label>사용 시작일 <span class="req">*</span></label><input id="lm-start" type="date"/></div>
     <div class="field"><label>사용 종료일 <span class="req">*</span></label><input id="lm-end" type="date"/></div>
-    <div class="field"><label>메모 <span style="color:var(--text3);font-weight:400">(선택)</span></label><textarea id="lm-memo" placeholder="기타 내용"></textarea></div>
+    <div class="field"><label>메모 <span style="color:var(--text3);font-weight:400">(선택)</span></label><textarea id="lm-memo"></textarea></div>
     <div class="err-msg" id="lm-err"></div>
     <div class="modal-actions">
       <button class="btn" onclick="closeLogModal()">취소</button>
@@ -420,100 +362,198 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <script>
 const API_URL = 'https://script.google.com/macros/s/AKfycbwB5mrWdS9WtrNmZBh0FQ7Zz4dxmDJYcIhnq5ChMYza3aETerHmd3KN8alQjo6rZuGp5w/exec';
 const ROOMS = ['프라임관 101','프라임관 102','프라임관 206','프라임관 207','프라임관 602','프라임관 603','프라임관 702'];
-const REMOTE = '프라임관 703';
-const SEAT_W = 122, SEAT_H = 80;
+const SEAT_W=122, SEAT_H=80, GRID=10;
+const IS_ADMIN = new URLSearchParams(location.search).get('admin')==='true';
 
-// 관리자 모드: URL에 ?admin=true 있으면 활성화
-const IS_ADMIN = new URLSearchParams(location.search).get('admin') === 'true';
-
-let allSeats=[], allLogs=[], curRoom=ROOMS[0], topMode='room', delMode=false;
+let allSeats=[], allLogs=[], allDecos=[], allIps=[];
+let curRoom=ROOMS[0], delMode=false;
 let dragging=null, dragOffX=0, dragOffY=0, dragMoved=false;
 let editSeat=null, editLogId=null, canvasEl=null, pendingLayout={};
 let decoType='window';
 
-// 장식 데이터 - Sheets에서 관리
-let allDecos = [];
-let allIps = [];
-function roomDecos(room){ return allDecos.filter(d=>d.room===room); }
-
+function roomDecos(r){return allDecos.filter(d=>d.room===r);}
 async function apiFetch(p){const r=await fetch(API_URL+'?'+new URLSearchParams(p));return r.json();}
 async function apiPost(b){const r=await fetch(API_URL,{method:'POST',body:JSON.stringify(b)});return r.json();}
 
-function toggleNotice(id){
-  const b=document.getElementById(id),c=document.getElementById('chev-'+id);
-  const o=b.classList.contains('open');
-  b.classList.toggle('open',!o);c.classList.toggle('open',!o);
+// ── 메뉴 ──
+function toggleMenu(id){
+  const el=document.getElementById(id);
+  const chev=document.getElementById('chev-'+id);
+  const isOpen=el.style.maxHeight!=='0px'&&el.style.maxHeight!=='';
+  el.style.maxHeight=isOpen?'0px':'400px';
+  if(chev)chev.classList.toggle('open',!isOpen);
 }
 
+function showView(type, viewId, clickedEl, roomName){
+  document.querySelectorAll('.menu-item,.menu-section-btn').forEach(m=>m.classList.remove('active'));
+  if(clickedEl)clickedEl.classList.add('active');
+
+  if(type==='notice') renderNotice(viewId);
+  else if(type==='seat'){
+    if(viewId==='v-ov') renderOverview();
+    else if(viewId==='v-room'){ curRoom=roomName; renderRoom(); }
+    else if(viewId==='v-ip') renderIp();
+  }
+  else if(type==='remote') renderRemote();
+}
+
+// ── 초기화 ──
 async function init(){
-  if(IS_ADMIN) document.getElementById('admin-badge').style.display='';
+  if(IS_ADMIN) document.getElementById('admin-badge').style.display='block';
   const d=await apiFetch({action:'getAll'});
-  allSeats=d.seats||[];allLogs=d.logs||[];allDecos=d.decos||[];allIps=d.ips||[];
-  renderRoomTabs();selectRoom(ROOMS[0]);
+  allSeats=d.seats||[]; allLogs=d.logs||[]; allDecos=d.decos||[]; allIps=d.ips||[];
+  updateMenuBadges();
+  renderNotice('v-rules');
 }
 
-function renderRoomTabs(){
-  const el=document.getElementById('room-tabs');
-  let h=`<button class="rtab${topMode==='ov'?' active':''}" onclick="showOverview()">전체 현황</button>`;
+function updateMenuBadges(){
   ROOMS.forEach(r=>{
+    const el=document.getElementById('tab-'+r);
+    if(!el)return;
     const empty=allSeats.filter(s=>s.room===r&&!s.seat_no.toString().startsWith('pub_')&&!s.user).length;
-    h+=`<button class="rtab${topMode==='room'&&curRoom===r?' active':''}" onclick="selectRoom('${r}')">${r}${empty>0?`<span class="eb">${empty}</span>`:''}</button>`;
+    const existing=el.querySelector('.eb');
+    if(existing)existing.remove();
+    if(empty>0){
+      const b=document.createElement('span');
+      b.className='eb';b.textContent=empty;
+      el.appendChild(b);
+    }
   });
-  h+=`<button class="rtab remote${topMode==='remote'?' active':''}" onclick="showRemote()">${REMOTE}</button>`;
-  h+=`<button class="rtab${topMode==='ip'?' active':''}" style="${topMode==='ip'?'background:#1d4ed8;border-color:#1d4ed8;color:#fff':''}" onclick="showIp()">🌐 IP 관리</button>`;
-  el.innerHTML=h;
 }
 
-function showOverview(){
-  topMode='ov';delMode=false;renderRoomTabs();
+// ── 공지 패널 ──
+function renderNotice(id){
+  const panels={
+    'v-rules':{
+      title:'연구실 운영 규정',desc:'좌석 배정 및 연구실 구조 변경 규정',
+      html:`<div class="notice-panel">
+        <div class="notice-panel-title"><span class="required-badge">필독</span> 연구실 운영 규정</div>
+        <ul class="nc-list">
+          <li><strong>(1) 좌석 배정</strong></li>
+          <li>연구실 좌석은 공정한 배정을 위해 추첨 방식으로 배정한다.</li>
+          <li>좌석 배정이 필요한 인원에 대해 우선순위를 추첨한 후, 추첨 순서에 따라 원하는 좌석을 선택한다.</li>
+          <li>배정 완료 후 개인 희망에 의한 좌석 변경은 원칙적으로 제한하며, 필요한 경우 학기 단위로 검토한다.</li>
+          <li>휴학, 장기 연수와 같이 한 학기 이상 연구실 사용이 어려운 경우에는 좌석을 반납하여야 하며, 복학 및 연수 복귀 이후 재배정할 수 있다.</li>
+          <li>지정 좌석 사용이 어려운 학생 또는 상시 좌석이 필요하지 않은 학생의 경우, 별도로 지정된 공용 좌석을 공동으로 사용할 수 있다.</li>
+          <li style="margin-top:6px"><strong>(2) 연구실 구조 변경</strong></li>
+          <li>연구실 좌석 및 집기 배치는 공간 활용도, 동선, 전기·네트워크 환경 등을 종합적으로 고려하여 구성원 모두가 동등하게 공간을 사용할 수 있도록 결정하였으며, 이에 따라 아래 사항을 준수하여 주시기 바랍니다.</li>
+          <li class="warn">책상, 파티션, 서랍 등 연구실 집기의 임의 이동 및 구조 변경은 불가하다.</li>
+          <li>공간 구조 및 집기 배치와 관련된 개선 의견은 학기 단위로 취합하며, 연구원 및 교수진의 검토를 거쳐 반영 여부를 결정한다.</li>
+        </ul>
+      </div>`
+    },
+    'v-asset':{
+      title:'사용 자산 관련 안내',desc:'자산번호 기입 방법 및 주의사항',
+      html:`<div class="notice-panel">
+        <div class="notice-panel-title">사용 자산 관련 안내</div>
+        <ul class="nc-list">
+          <li>연구실 별 좌석 배치도를 확인하고, 본인 자리의 정보를 채워주세요.</li>
+          <li>자산 스티커가 없는 경우 <strong>(-)</strong> 로 표시해주시기 바랍니다.</li>
+          <li>자산이 두 개인 경우 <strong>" / "</strong> 로 구분하여 자산 번호 모두 기입 바랍니다.</li>
+          <li>공용 PC 기입이 필요한 경우 <a href="mailto:cseri@sungshin.ac.kr">cseri@sungshin.ac.kr</a> 로 연구실(호실명), 서버이름(관리자 이름) 정보를 전달해주시면 작성 가능하도록 생성해드리겠습니다.</li>
+          <li class="warn">자산 임의 이동 불가</li>
+        </ul>
+      </div>`
+    },
+    'v-lab':{
+      title:'연구실 사용 관련 정보',desc:'복합기 연결 등 사용 안내',
+      html:`<div class="notice-panel">
+        <div class="notice-panel-title">연구실 사용 관련 정보</div>
+        <ul class="nc-list">
+          <li><a href="https://drive.google.com/drive/folders/1Cx0dPkIZXaMnYyshWCU1M6EVMwBsdOFW?usp=drive_link" target="_blank">🗂 좌석 배치도</a></li>
+          <li><a href="https://drive.google.com/drive/folders/1giGkK9QOa_k2ATBzNYcx-R2jCcg2YMyh?usp=drive_link" target="_blank">🖨 복합기 연결</a></li>
+          <li class="sub">각 연구실도 동일 방법으로 복합기 정보만 변경하면 연결됩니다.</li>
+        </ul>
+      </div>`
+    },
+    'v-key':{
+      title:'카드키 / 열쇠 보관',desc:'연구실별 보관 장소 및 비밀번호',
+      html:`<div class="notice-panel">
+        <div class="notice-panel-title">연구실 카드키/열쇠 보관 정보</div>
+        <table class="key-table">
+          <thead><tr><th>연구실</th><th>보관 장소 (사물함 번호)</th><th>자물쇠 비밀번호</th></tr></thead>
+          <tbody>
+            <tr><td>프 101호</td><td>47</td><td>1348</td></tr>
+            <tr><td>프 102호</td><td>47</td><td>1348</td></tr>
+            <tr><td>프 206호</td><td>실물 열쇠</td><td>-</td></tr>
+            <tr><td>프 207호</td><td>발급 예정</td><td>-</td></tr>
+            <tr><td>프 602호</td><td>63</td><td>1367</td></tr>
+            <tr><td>프 603호</td><td>101</td><td>36789</td></tr>
+            <tr><td>프 702호</td><td>상시 개방</td><td>상시 개방</td></tr>
+            <tr><td>프 703호</td><td>상시 개방</td><td>상시 개방</td></tr>
+          </tbody>
+        </table>
+      </div>`
+    },
+    'v-net':{
+      title:'네트워크 및 IP 정보',desc:'IP 할당 및 설정 방법',
+      html:`<div class="notice-panel">
+        <div class="notice-panel-title">네트워크 및 IP 정보</div>
+        <ul class="nc-list">
+          <li><a href="https://drive.google.com/file/d/1aGaEaJw5YbENcU-2HdONTmHHK5atVweu/view?usp=drive_link" target="_blank">📄 IP 설정 방법</a></li>
+          <li>IP 주소는 IT운영팀에 요청하여 할당 받아야 네트워크 사용이 가능합니다.</li>
+          <li>할당 요청 시 필요한 <strong>IP 수량</strong>과 <strong>사용 연구실</strong>을 함께 전달해주세요.</li>
+          <li>📧 <a href="mailto:cseri@sungshin.ac.kr">cseri@sungshin.ac.kr</a></li>
+          <li style="margin-top:6px"><strong>네트워크 장애 관련 문의</strong></li>
+          <li><a href="https://www.sungshin.ac.kr/main_kor/18729/subview.do?enc=Zm5jdDF8QEB8JTJGYmJzJTJGbWFpbl9rb3IlMkY0Njg1JTJGYXJ0Y2xMaXN0LmRvJTNGYmJzQ2xTZXElM0QxODI4JTI2YmJzT3BlbldyZFNlcSUzRCUyNmlzVmlld01pbmUlM0RmYWxzZSUyNnNyY2hDb2x1bW4lM0RzaiUyNnNyY2hXcmQlM0QlMjY%3D" target="_blank">IT운영팀 바로가기 →</a></li>
+        </ul>
+      </div>`
+    }
+  };
+  const p=panels[id];
+  if(!p)return;
+  document.getElementById('view-main').innerHTML=`
+    <div class="main-header"><h2>${p.title}</h2><p>${p.desc}</p></div>
+    ${p.html}`;
+}
+
+// ── 전체 현황 ──
+function renderOverview(){
   const cards=ROOMS.map(r=>{
     const s=allSeats.filter(x=>x.room===r&&!x.seat_no.toString().startsWith('pub_'));
-    const occ=s.filter(x=>x.user).length,pct=s.length?Math.round(occ/s.length*100):0;
-    return `<div class="ov-card" onclick="selectRoom('${r}')">
+    const occ=s.filter(x=>x.user).length, pct=s.length?Math.round(occ/s.length*100):0;
+    return `<div class="ov-card" onclick="selectRoomFromOv('${r}')">
       <div class="ov-name">${r}</div>
       <div class="ov-bar-bg"><div class="ov-bar" style="width:${pct}%"></div></div>
       <div class="ov-nums">${occ}/${s.length}석 사용 중 <span style="color:var(--text3)">(${pct}%)</span></div>
     </div>`;
   }).join('');
-  const rem=`<div class="ov-card remote-card" onclick="showRemote()">
-    <div class="ov-name">${REMOTE}</div>
-    <div class="ov-bar-bg"><div class="ov-bar" style="width:100%;background:var(--green)"></div></div>
-    <div class="ov-nums">누적 ${allLogs.length}건 기록</div>
-  </div>`;
-  document.getElementById('view-main').innerHTML=`<div class="ov-grid">${cards}${rem}</div>`;
+  document.getElementById('view-main').innerHTML=`
+    <div class="main-header"><h2>전체 현황</h2><p>모든 연구실 좌석 사용 현황</p></div>
+    <div class="ov-grid">${cards}</div>`;
 }
 
-function selectRoom(r){curRoom=r;topMode='room';delMode=false;renderRoomTabs();renderRoom();}
+function selectRoomFromOv(r){
+  curRoom=r;
+  const el=document.getElementById('tab-'+r);
+  document.querySelectorAll('.menu-item,.menu-section-btn').forEach(m=>m.classList.remove('active'));
+  if(el)el.classList.add('active');
+  renderRoom();
+}
 
+// ── 배치도 ──
 function renderRoom(){
   const seats=allSeats.filter(s=>s.room===curRoom);
   const normal=seats.filter(s=>!s.seat_no.toString().startsWith('pub_'));
   const occ=normal.filter(s=>s.user).length;
-
-  // 툴바 - 관리자만 편집 버튼 보임
-  const adminTools = IS_ADMIN ? `
+  const adminTools=IS_ADMIN?`
     <button class="tool-btn" onclick="openAddPublic()">＋ 공용 박스</button>
     <button class="tool-btn" onclick="openDecoModal()">＋ 장식 추가</button>
     <button class="tool-btn ${delMode?'danger-mode':''}" id="del-btn" onclick="toggleDelMode()">${delMode?'✕ 삭제 모드':'요소 삭제'}</button>
-  ` : '';
-
-  const hintText = IS_ADMIN
-    ? '<span class="hint">🔧 관리자 모드 — 드래그로 이동 · 클릭으로 정보 입력</span>'
-    : '<span class="hint">자리를 클릭해서 정보를 입력하세요.</span>';
-
+  `:'';
+  const hint=IS_ADMIN?'🔧 드래그로 이동 · 클릭으로 정보 입력':'자리를 클릭해서 정보를 입력하세요.';
   document.getElementById('view-main').innerHTML=`
-    <div class="room-sticky">
-      <div class="stats">
-        <div class="stat"><div class="stat-val">${normal.length}</div><div class="stat-lbl">전체 자리</div></div>
-        <div class="stat"><div class="stat-val" style="color:var(--primary)">${occ}</div><div class="stat-lbl">사용 중</div></div>
-        <div class="stat"><div class="stat-val" style="color:var(--text3)">${normal.length-occ}</div><div class="stat-lbl">미사용</div></div>
-      </div>
-      <div class="toolbar">${hintText}${adminTools}</div>
+    <div class="main-header"><h2>${curRoom}</h2><p>좌석 배치도 및 자산 정보</p></div>
+    <div class="stats">
+      <div class="stat"><div class="stat-val">${normal.length}</div><div class="stat-lbl">전체 자리</div></div>
+      <div class="stat"><div class="stat-val" style="color:var(--primary)">${occ}</div><div class="stat-lbl">사용 중</div></div>
+      <div class="stat"><div class="stat-val" style="color:var(--text3)">${normal.length-occ}</div><div class="stat-lbl">미사용</div></div>
     </div>
+    <div class="toolbar"><span class="hint">${hint}</span>${adminTools}</div>
     <div class="canvas-wrap"><div class="canvas" id="canvas"></div></div>`;
   canvasEl=document.getElementById('canvas');
   renderSeats();
-  if(IS_ADMIN) setupDrag();
+  if(IS_ADMIN)setupDrag();
   else setupClickOnly();
 }
 
@@ -521,33 +561,21 @@ function renderSeats(){
   if(!canvasEl)return;
   const seats=allSeats.filter(s=>s.room===curRoom);
   const decos=roomDecos(curRoom);
-  let maxB=0;
-  canvasEl.innerHTML='';
-
-  // 장식 요소 렌더링
+  let maxB=0; canvasEl.innerHTML='';
   decos.forEach(d=>{
     const el=document.createElement('div');
     el.className=`deco ${d.type||'etc'}${IS_ADMIN?' draggable':''}`;
     el.style.cssText=`left:${d.x||0}px;top:${d.y||0}px;width:${d.w||120}px;height:${d.h||36}px`;
     el.dataset.decoId=d.id;
     el.textContent=d.label;
-    if(IS_ADMIN){
-      const delBtn=document.createElement('span');
-      delBtn.className='deco-del';
-      delBtn.textContent='×';
-      delBtn.onclick=(e)=>{e.stopPropagation();deleteDeco(d.id);};
-      el.appendChild(delBtn);
-    }
+    if(IS_ADMIN){const db=document.createElement('span');db.className='deco-del';db.textContent='×';db.onclick=(e)=>{e.stopPropagation();deleteDeco(d.id);};el.appendChild(db);}
     canvasEl.appendChild(el);
     const b=(d.y||0)+(d.h||36);if(b>maxB)maxB=b;
   });
-
-  // 자리 렌더링
   seats.forEach(s=>{
     const isPub=s.seat_no.toString().startsWith('pub_'),isOcc=!isPub&&s.user;
     const el=document.createElement('div');
-    const dragClass=IS_ADMIN?' draggable':' clickable';
-    el.className='seat'+(isPub?' pub':isOcc?' occ':' empty')+dragClass+(delMode&&isPub?' del-mode':'');
+    el.className='seat'+(isPub?' pub':isOcc?' occ':' empty')+(IS_ADMIN?' draggable':' clickable')+(delMode&&isPub?' del-mode':'');
     el.style.cssText=`left:${s.x||0}px;top:${s.y||0}px;width:${SEAT_W}px`;
     el.dataset.seatNo=s.seat_no;
     el.innerHTML=`<div class="seat-type">${isPub?'공용':`${s.seat_no}번 자리`}</div>
@@ -565,22 +593,21 @@ function updateStats(){
   const o=n.filter(s=>s.user).length;
   const els=document.querySelectorAll('.stat-val');
   if(els.length>=3){els[0].textContent=n.length;els[1].textContent=o;els[2].textContent=n.length-o;}
-  renderRoomTabs();
+  updateMenuBadges();
 }
 
-// 일반 사용자: 클릭만
 function setupClickOnly(){
   if(!canvasEl)return;
   canvasEl.addEventListener('click',e=>{
-    const seatEl=e.target.closest('.seat');
-    if(!seatEl)return;
-    const sno=seatEl.dataset.seatNo;
-    const s=allSeats.find(x=>x.room===curRoom&&String(x.seat_no)===String(sno));
+    const el=e.target.closest('.seat');if(!el)return;
+    const s=allSeats.find(x=>x.room===curRoom&&String(x.seat_no)===String(el.dataset.seatNo));
     if(s)openSeatModal(s);
   });
 }
 
-// 관리자: 드래그 + 클릭
+function snap(v){return Math.round(v/GRID)*GRID;}
+function pt(e){return e.touches?{x:e.touches[0].clientX,y:e.touches[0].clientY}:{x:e.clientX,y:e.clientY};}
+
 function setupDrag(){
   if(!canvasEl)return;
   canvasEl.addEventListener('mousedown',onDS);
@@ -590,27 +617,17 @@ function setupDrag(){
   document.addEventListener('mouseup',onDE);
   document.addEventListener('touchend',onDE);
 }
-function pt(e){return e.touches?{x:e.touches[0].clientX,y:e.touches[0].clientY}:{x:e.clientX,y:e.clientY};}
 
 function onDS(e){
-  const seatEl=e.target.closest('.seat,.deco');
-  if(!seatEl||e.target.classList.contains('deco-del'))return;
+  const el=e.target.closest('.seat,.deco');if(!el||e.target.classList.contains('deco-del'))return;
   e.preventDefault();dragMoved=false;
-  const isDeco=seatEl.classList.contains('deco');
-  const id=isDeco?seatEl.dataset.decoId:seatEl.dataset.seatNo;
-  let obj;
-  if(isDeco){
-    obj=allDecos.find(d=>d.id===id);
-  } else {
-    obj=allSeats.find(x=>x.room===curRoom&&String(x.seat_no)===String(id));
-  }
+  const isDeco=el.classList.contains('deco');
+  const id=isDeco?el.dataset.decoId:el.dataset.seatNo;
+  let obj=isDeco?allDecos.find(d=>d.id===id):allSeats.find(x=>x.room===curRoom&&String(x.seat_no)===String(id));
   const r=canvasEl.getBoundingClientRect(),p=pt(e);
   dragOffX=p.x-r.left-(obj.x||0);dragOffY=p.y-r.top-(obj.y||0);
-  dragging={id,el:seatEl,obj,isDeco};seatEl.classList.add('dragging');
+  dragging={id,el,obj,isDeco};el.classList.add('dragging');
 }
-
-const GRID = 10; // 격자 간격 (px)
-function snap(v){return Math.round(v/GRID)*GRID;}
 
 function onDM(e){
   if(!dragging)return;e.preventDefault();dragMoved=true;
@@ -620,23 +637,16 @@ function onDM(e){
   dragging.obj.x=nx;dragging.obj.y=ny;
   dragging.el.style.left=nx+'px';dragging.el.style.top=ny+'px';
   canvasEl.style.minHeight=(ny+100)+'px';
-  if(dragging.isDeco){
-    const d=allDecos.find(x=>x.id===dragging.id);
-    if(d){d.x=nx;d.y=ny;}
-    // 위치는 mouseup에서 일괄 저장
-  } else {
-    if(!pendingLayout[curRoom])pendingLayout[curRoom]={};
-    pendingLayout[curRoom][dragging.id]={x:nx,y:ny};
-  }
+  if(dragging.isDeco){const d=allDecos.find(x=>x.id===dragging.id);if(d){d.x=nx;d.y=ny;}}
+  else{if(!pendingLayout[curRoom])pendingLayout[curRoom]={};pendingLayout[curRoom][dragging.id]={x:nx,y:ny};}
 }
 
 async function onDE(){
   if(!dragging)return;
   dragging.el.classList.remove('dragging');
   if(!dragMoved){
-    if(dragging.isDeco){
-      openDecoEditModal(dragging.id);
-    } else {
+    if(dragging.isDeco)openDecoEditModal(dragging.id);
+    else{
       const isPub=dragging.id.toString().startsWith('pub_');
       if(delMode&&isPub)await deletePubDirect(dragging.obj);
       else openSeatModal(dragging.obj);
@@ -645,9 +655,7 @@ async function onDE(){
     if(dragging.isDeco){
       await apiPost({action:'updateDecoLayout',decos:[{id:dragging.id,x:dragging.obj.x,y:dragging.obj.y}]});
       renderSeats();if(IS_ADMIN)setupDrag();
-    } else {
-      await flushLayout();
-    }
+    } else await flushLayout();
   }
   dragging=null;
 }
@@ -659,129 +667,64 @@ async function flushLayout(){
   delete pendingLayout[curRoom];
 }
 
-// 삭제 모드
 function toggleDelMode(){
   delMode=!delMode;renderSeats();
   const b=document.getElementById('del-btn');
   if(b){b.textContent=delMode?'✕ 삭제 모드':'요소 삭제';b.classList.toggle('danger-mode',delMode);}
   if(IS_ADMIN)setupDrag();
 }
+
 async function deletePubDirect(seat){
   if(!confirm(`"${seat.label||'공용 박스'}"를 삭제할까요?`))return;
   await apiPost({action:'deletePublic',room:curRoom,seat_no:seat.seat_no});
   allSeats=allSeats.filter(s=>!(s.room===curRoom&&s.seat_no===seat.seat_no));
-  renderSeats();if(IS_ADMIN)setupDrag();
+  renderSeats();
 }
 
-// 장식 관련
-function openDecoModal(){
-  document.getElementById('dm-label').value='';
-  document.getElementById('dm-w').value='120';
-  document.getElementById('dm-h').value='36';
-  document.getElementById('dm-err').textContent='';
-  decoType='window';
-  document.querySelectorAll('.deco-type-btn').forEach(b=>b.classList.toggle('selected',b.dataset.type==='window'));
-  const saveBtn=document.querySelector('#deco-modal .btn.primary');
-  saveBtn.textContent='추가';
-  saveBtn.onclick=saveDeco;
-  document.getElementById('deco-modal').classList.add('open');
-}
-function closeDecoModal(){document.getElementById('deco-modal').classList.remove('open');}
-function selectDecoType(btn){
-  decoType=btn.dataset.type;
-  document.querySelectorAll('.deco-type-btn').forEach(b=>b.classList.remove('selected'));
-  btn.classList.add('selected');
-}
-function openDecoEditModal(id){
-  const deco=allDecos.find(d=>d.id===id);if(!deco)return;
-  document.getElementById('dm-label').value=deco.label||'';
-  document.getElementById('dm-w').value=deco.w||120;
-  document.getElementById('dm-h').value=deco.h||36;
-  document.getElementById('dm-err').textContent='';
-  decoType=deco.type||'etc';
-  document.querySelectorAll('.deco-type-btn').forEach(b=>b.classList.toggle('selected',b.dataset.type===decoType));
-  const saveBtn=document.querySelector('#deco-modal .btn.primary');
-  saveBtn.textContent='수정';
-  saveBtn.onclick=()=>updateDeco(id);
-  document.getElementById('deco-modal').classList.add('open');
-}
-async function updateDeco(id){
-  const label=document.getElementById('dm-label').value.trim();
-  if(!label){document.getElementById('dm-err').textContent='이름을 입력해주세요.';return;}
-  const w=parseInt(document.getElementById('dm-w').value)||120;
-  const h=parseInt(document.getElementById('dm-h').value)||36;
-  const d=allDecos.find(x=>x.id===id);
-  await apiPost({action:'updateDecoLayout',decos:[{id,x:d?.x||0,y:d?.y||0,label,type:decoType,w,h}]});
-  if(d){d.label=label;d.type=decoType;d.w=w;d.h=h;}
-  closeDecoModal();renderSeats();if(IS_ADMIN)setupDrag();
-}
-
-async function saveDeco(){
-  const label=document.getElementById('dm-label').value.trim();
-  if(!label){document.getElementById('dm-err').textContent='이름을 입력해주세요.';return;}
-  const w=parseInt(document.getElementById('dm-w').value)||120;
-  const h=parseInt(document.getElementById('dm-h').value)||36;
-  const maxY=roomDecos(curRoom).reduce((m,d)=>Math.max(m,(d.y||0)+(d.h||36)),0);
-  const res=await apiPost({action:'addDeco',room:curRoom,type:decoType,label,w,h,x:0,y:maxY+10});
-  if(res.error){document.getElementById('dm-err').textContent=res.error;return;}
-  allDecos.push({id:res.id,room:curRoom,type:decoType,label,w,h,x:0,y:maxY+10});
-  closeDecoModal();renderSeats();if(IS_ADMIN)setupDrag();
-}
-async function deleteDeco(id){
-  if(!confirm('이 요소를 삭제할까요?'))return;
-  await apiPost({action:'deleteDeco',id});
-  allDecos=allDecos.filter(d=>d.id!==id);
-  renderSeats();if(IS_ADMIN)setupDrag();
-}
-
-// 자리 모달
+// ── 자리 모달 ──
 function openSeatModal(seat){
   editSeat=seat;
   const isPub=seat.seat_no.toString().startsWith('pub_');
+  const isAddingPub=isPub&&seat.seat_no==='pub_new'&&IS_ADMIN;
   document.getElementById('sm-title').textContent=isPub?`공용 박스 — ${seat.label||''}`:`${seat.seat_no}번 자리`;
   document.getElementById('sm-sub').textContent=isPub?'자산번호를 입력하세요.':'이름과 자산번호를 모두 입력하세요.';
   document.getElementById('sm-field-label').style.display=isPub?'':'none';
   document.getElementById('sm-field-user').style.display=isPub?'none':'';
-  // PC/모니터 라벨: 관리자+공용박스추가는 선택, 나머지는 필수
-  const isAddingPub = isPub && editSeat.seat_no === 'pub_new' && IS_ADMIN;
-  const pcReq = isAddingPub
-    ? `PC 자산번호 <span style="color:var(--text3);font-weight:400">(선택)</span>`
-    : `PC 자산번호 <span class="req">*</span>`;
-  const monReq = isAddingPub
-    ? `모니터 자산번호 <span style="color:var(--text3);font-weight:400">(선택)</span>`
-    : `모니터 자산번호 <span class="req">*</span>`;
-  document.getElementById('sm-pc-label').innerHTML = pcReq;
-  document.getElementById('sm-mon-label').innerHTML = monReq;
-  if(!IS_ADMIN&&isPub) document.getElementById('sm-sub').textContent='이름과 자산번호를 모두 입력하세요.';
   document.getElementById('sm-label').value=seat.label||'';
   document.getElementById('sm-user').value=seat.user||'';
   document.getElementById('sm-pc').value=seat.pc||'';
   document.getElementById('sm-mon').value=seat.monitor||'';
-  // 일반 자리는 항상 필수
-  if(!isPub){
-    document.getElementById('sm-pc-label').innerHTML=`PC 자산번호 <span class="req">*</span>`;
-    document.getElementById('sm-mon-label').innerHTML=`모니터 자산번호 <span class="req">*</span>`;
-  }
   document.getElementById('sm-err').textContent='';
   document.getElementById('sm-btn-clear').style.display=(!isPub&&seat.user)?'':'none';
   document.getElementById('sm-btn-delpub').style.display=(isPub&&IS_ADMIN)?'':'none';
   document.getElementById('sm-btn-save').textContent='저장';
   document.getElementById('sm-btn-save').onclick=saveSeat;
+  const pcReq=isAddingPub?`PC 자산번호 <span style="color:var(--text3);font-weight:400">(선택)</span>`:`PC 자산번호 <span class="req">*</span>`;
+  const monReq=isAddingPub?`모니터 자산번호 <span style="color:var(--text3);font-weight:400">(선택)</span>`:`모니터 자산번호 <span class="req">*</span>`;
+  document.getElementById('sm-pc-label').innerHTML=pcReq;
+  document.getElementById('sm-mon-label').innerHTML=monReq;
+  if(!IS_ADMIN&&isPub)document.getElementById('sm-sub').textContent='이름과 자산번호를 모두 입력하세요.';
+  if(!isPub){
+    document.getElementById('sm-pc-label').innerHTML=`PC 자산번호 <span class="req">*</span>`;
+    document.getElementById('sm-mon-label').innerHTML=`모니터 자산번호 <span class="req">*</span>`;
+  }
   document.getElementById('seat-modal').classList.add('open');
   validateSeat();
   ['sm-label','sm-user','sm-pc','sm-mon'].forEach(id=>document.getElementById(id).oninput=validateSeat);
 }
+
 function validateSeat(){
   const isPub=editSeat&&editSeat.seat_no.toString().startsWith('pub_');
+  const isAddingPub=isPub&&editSeat.seat_no==='pub_new'&&IS_ADMIN;
   const l=document.getElementById('sm-label').value.trim();
   const u=document.getElementById('sm-user').value.trim();
   const p=document.getElementById('sm-pc').value.trim();
   const m=document.getElementById('sm-mon').value.trim();
-  // 관리자+공용박스추가: 이름만 필수 / 그 외: 모두 필수
-  const isAddingPub = isPub && editSeat.seat_no === 'pub_new' && IS_ADMIN;
   document.getElementById('sm-btn-save').disabled=isAddingPub?!l:isPub?!(l&&p&&m):!(u&&p&&m);
 }
+
 function closeSeatModal(){document.getElementById('seat-modal').classList.remove('open');editSeat=null;}
+
 async function saveSeat(){
   const isPub=editSeat.seat_no.toString().startsWith('pub_');
   const label=document.getElementById('sm-label').value.trim();
@@ -798,6 +741,7 @@ async function saveSeat(){
   if(s){s.user=user;s.pc=pc;s.monitor=mon;if(isPub)s.label=label;}
   closeSeatModal();renderSeats();if(IS_ADMIN)setupDrag();
 }
+
 async function clearSeat(){
   if(!confirm('자리를 비울까요?'))return;
   await apiPost({action:'updateSeat',room:curRoom,seat_no:editSeat.seat_no,user:'',pc:'',monitor:''});
@@ -805,12 +749,14 @@ async function clearSeat(){
   if(s){s.user='';s.pc='';s.monitor='';}
   closeSeatModal();renderSeats();if(IS_ADMIN)setupDrag();
 }
+
 async function deletePub(){
   if(!confirm('공용 박스를 삭제할까요?'))return;
   await apiPost({action:'deletePublic',room:curRoom,seat_no:editSeat.seat_no});
   allSeats=allSeats.filter(s=>!(s.room===curRoom&&String(s.seat_no)===String(editSeat.seat_no)));
   closeSeatModal();renderSeats();if(IS_ADMIN)setupDrag();
 }
+
 function openAddPublic(){
   editSeat={seat_no:'pub_new',room:curRoom,label:'',user:'',pc:'',monitor:'',x:0,y:0};
   document.getElementById('sm-title').textContent='공용 박스 추가';
@@ -818,18 +764,20 @@ function openAddPublic(){
   document.getElementById('sm-field-label').style.display='';
   document.getElementById('sm-field-user').style.display='none';
   ['sm-label','sm-pc','sm-mon'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('sm-pc-label').innerHTML=`PC 자산번호 <span style="color:var(--text3);font-weight:400">(선택)</span>`;
+  document.getElementById('sm-mon-label').innerHTML=`모니터 자산번호 <span style="color:var(--text3);font-weight:400">(선택)</span>`;
   document.getElementById('sm-err').textContent='';
   document.getElementById('sm-btn-clear').style.display='none';
   document.getElementById('sm-btn-delpub').style.display='none';
   document.getElementById('sm-btn-save').textContent='추가';
-  document.getElementById('sm-btn-save').onclick=saveNewPublic;
-  document.getElementById('seat-modal').classList.add('open');
-  // 이름만 필수로 변경
   document.getElementById('sm-btn-save').disabled=false;
+  document.getElementById('sm-btn-save').onclick=saveNewPublic;
   document.getElementById('sm-label').oninput=()=>{
     document.getElementById('sm-btn-save').disabled=!document.getElementById('sm-label').value.trim();
   };
+  document.getElementById('seat-modal').classList.add('open');
 }
+
 async function saveNewPublic(){
   const label=document.getElementById('sm-label').value.trim();
   const pc=document.getElementById('sm-pc').value.trim();
@@ -844,8 +792,70 @@ async function saveNewPublic(){
   closeSeatModal();renderSeats();if(IS_ADMIN)setupDrag();
 }
 
-// 로그
-function showRemote(){topMode='remote';delMode=false;renderRoomTabs();renderRemote();}
+// ── 장식 모달 ──
+function openDecoModal(){
+  document.getElementById('dm-label').value='';
+  document.getElementById('dm-w').value='120';
+  document.getElementById('dm-h').value='36';
+  document.getElementById('dm-err').textContent='';
+  decoType='window';
+  document.querySelectorAll('.deco-type-btn').forEach(b=>b.classList.toggle('selected',b.dataset.type==='window'));
+  const btn=document.getElementById('dm-save-btn');
+  btn.textContent='추가';btn.onclick=saveDeco;
+  document.getElementById('deco-modal').classList.add('open');
+}
+
+function openDecoEditModal(id){
+  const deco=allDecos.find(d=>d.id===id);if(!deco)return;
+  document.getElementById('dm-label').value=deco.label||'';
+  document.getElementById('dm-w').value=deco.w||120;
+  document.getElementById('dm-h').value=deco.h||36;
+  document.getElementById('dm-err').textContent='';
+  decoType=deco.type||'etc';
+  document.querySelectorAll('.deco-type-btn').forEach(b=>b.classList.toggle('selected',b.dataset.type===decoType));
+  const btn=document.getElementById('dm-save-btn');
+  btn.textContent='수정';btn.onclick=()=>updateDeco(id);
+  document.getElementById('deco-modal').classList.add('open');
+}
+
+function closeDecoModal(){document.getElementById('deco-modal').classList.remove('open');}
+function selectDecoType(btn){
+  decoType=btn.dataset.type;
+  document.querySelectorAll('.deco-type-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+async function saveDeco(){
+  const label=document.getElementById('dm-label').value.trim();
+  if(!label){document.getElementById('dm-err').textContent='이름을 입력해주세요.';return;}
+  const w=parseInt(document.getElementById('dm-w').value)||120;
+  const h=parseInt(document.getElementById('dm-h').value)||36;
+  const maxY=roomDecos(curRoom).reduce((m,d)=>Math.max(m,(d.y||0)+(d.h||36)),0);
+  const res=await apiPost({action:'addDeco',room:curRoom,type:decoType,label,w,h,x:0,y:maxY+10});
+  if(res.error){document.getElementById('dm-err').textContent=res.error;return;}
+  allDecos.push({id:res.id,room:curRoom,type:decoType,label,w,h,x:0,y:maxY+10});
+  closeDecoModal();renderSeats();if(IS_ADMIN)setupDrag();
+}
+
+async function updateDeco(id){
+  const label=document.getElementById('dm-label').value.trim();
+  if(!label){document.getElementById('dm-err').textContent='이름을 입력해주세요.';return;}
+  const w=parseInt(document.getElementById('dm-w').value)||120;
+  const h=parseInt(document.getElementById('dm-h').value)||36;
+  const d=allDecos.find(x=>x.id===id);
+  await apiPost({action:'updateDecoLayout',decos:[{id,x:d?.x||0,y:d?.y||0,label,type:decoType,w,h}]});
+  if(d){d.label=label;d.type=decoType;d.w=w;d.h=h;}
+  closeDecoModal();renderSeats();if(IS_ADMIN)setupDrag();
+}
+
+async function deleteDeco(id){
+  if(!confirm('이 요소를 삭제할까요?'))return;
+  await apiPost({action:'deleteDeco',id});
+  allDecos=allDecos.filter(d=>d.id!==id);
+  renderSeats();if(IS_ADMIN)setupDrag();
+}
+
+// ── 원격PC실 ──
 function renderRemote(q=''){
   const logs=allLogs.filter(l=>!q||[l.name,l.lab,l.contact,l.pc_asset,l.memo].some(v=>v&&v.toLowerCase().includes(q.toLowerCase())));
   const rows=logs.length===0
@@ -859,9 +869,10 @@ function renderRemote(q=''){
         <td><span class="edit-link" onclick="openEditLog('${l.id}')">수정</span></td>
       </tr>`).join('');
   document.getElementById('view-main').innerHTML=`
+    <div class="main-header"><h2>원격PC실 (프라임관 703호)</h2><p>사용 기록 누적 관리</p></div>
     <div class="log-wrap">
       <div class="log-toolbar">
-        <h3>프라임관 703 사용 기록 <span style="font-weight:400;color:var(--text3);font-size:12px">총 ${allLogs.length}건</span></h3>
+        <h3>사용 기록 <span style="font-weight:400;color:var(--text3);font-size:12px">총 ${allLogs.length}건</span></h3>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           <input class="search-box" placeholder="이름·연구실·자산번호 검색" oninput="renderRemote(this.value)" value="${q}"/>
           <button class="tool-btn accent" onclick="openAddLog()">＋ 사용 등록</button>
@@ -875,6 +886,7 @@ function renderRemote(q=''){
       </div>
     </div>`;
 }
+
 function openAddLog(){
   editLogId=null;
   document.getElementById('lm-title').textContent='프라임관 703 사용 등록';
@@ -886,6 +898,7 @@ function openAddLog(){
   document.getElementById('lm-btn-save').textContent='등록';
   document.getElementById('log-modal').classList.add('open');
 }
+
 function openEditLog(id){
   const log=allLogs.find(l=>l.id===id);if(!log)return;
   editLogId=id;
@@ -902,11 +915,13 @@ function openEditLog(id){
   ['lm-name','lm-lab','lm-contact','lm-start'].forEach(id=>document.getElementById(id).readOnly=true);
   document.getElementById('log-modal').classList.add('open');
 }
+
 function closeLogModal(){
   document.getElementById('log-modal').classList.remove('open');
   ['lm-name','lm-lab','lm-contact','lm-start'].forEach(id=>document.getElementById(id).readOnly=false);
   editLogId=null;
 }
+
 async function saveLog(){
   const name=document.getElementById('lm-name').value.trim();
   const lab=document.getElementById('lm-lab').value.trim();
@@ -920,9 +935,8 @@ async function saveLog(){
     document.getElementById('lm-btn-save').disabled=true;
     const res=await apiPost({action:'updateLog',id:editLogId,end_date:end,memo});
     if(res.error){document.getElementById('lm-err').textContent=res.error;document.getElementById('lm-btn-save').disabled=false;return;}
-    const l=allLogs.find(x=>x.id===editLogId);
-    if(l){l.end_date=end;l.memo=memo;}
-  }else{
+    const l=allLogs.find(x=>x.id===editLogId);if(l){l.end_date=end;l.memo=memo;}
+  } else {
     if(!name||!lab||!contact||!pc||!start||!end){document.getElementById('lm-err').textContent='모든 필수 항목을 입력해주세요.';return;}
     document.getElementById('lm-btn-save').disabled=true;
     const res=await apiPost({action:'addLog',name,lab,contact,pc_asset:pc,start_date:start,end_date:end,memo});
@@ -932,33 +946,32 @@ async function saveLog(){
   document.getElementById('lm-btn-save').disabled=false;
   closeLogModal();renderRemote();
 }
-function today(){return new Date().toISOString().slice(0,10);}
 
-// IP 관리
-function showIp(){topMode='ip';delMode=false;renderRoomTabs();renderIp();}
+// ── IP 관리 ──
 function renderIp(q=''){
   const ips=allIps.filter(l=>!q||[l.name,l.room,l.ip].some(v=>v&&v.toLowerCase().includes(q.toLowerCase())));
-  // 중복 IP 찾기
   const ipCount={};
   allIps.forEach(x=>{ipCount[x.ip]=(ipCount[x.ip]||0)+1;});
+  const dupCount=Object.values(ipCount).filter(v=>v>1).length;
   const rows=ips.length===0
     ?`<tr><td colspan="5" class="log-empty">등록된 IP 정보가 없습니다.</td></tr>`
     :ips.map(l=>{
       const isDup=ipCount[l.ip]>1;
-      return `<tr style="${isDup?'background:#fef2f2':''}">
-        <td><strong>${l.name}</strong></td>
-        <td>${l.room}</td>
-        <td style="font-family:monospace;font-size:13px;${isDup?'color:var(--danger);font-weight:700':''}">${l.ip}${isDup?' ⚠️ 중복':''}</td>
+      return `<tr${isDup?' class="ip-dup"':''}>
+        <td><strong>${l.name}</strong></td><td>${l.room}</td>
+        <td style="font-family:monospace;${isDup?'color:var(--danger);font-weight:700':''}">${l.ip}${isDup?' ⚠️':''}</td>
         <td style="color:var(--text3);font-size:12px">${l.created_at}</td>
         <td><span class="edit-link" style="color:var(--danger);background:var(--danger-light)" onclick="deleteIp('${l.id}','${l.name}','${l.ip}')">삭제</span></td>
       </tr>`;
     }).join('');
-
-  const dupCount=Object.values(ipCount).filter(v=>v>1).length;
   document.getElementById('view-main').innerHTML=`
+    <div class="main-header">
+      <h2>IP 관리</h2>
+      <p>본인의 IP 정보를 등록하세요.</p>
+    </div>
     <div class="log-wrap">
       <div class="log-toolbar">
-        <h3>IP 관리 <span style="font-weight:400;color:var(--text3);font-size:12px">총 ${allIps.length}건</span>${dupCount>0?`<span style="margin-left:8px;font-size:12px;color:var(--danger);font-weight:600">⚠️ 중복 IP ${dupCount}건</span>`:''}</h3>
+        <h3>IP 목록 <span style="font-weight:400;color:var(--text3);font-size:12px">총 ${allIps.length}건</span>${dupCount>0?`<span style="margin-left:8px;font-size:12px;color:var(--danger);font-weight:600">⚠️ 중복 ${dupCount}건</span>`:''}</h3>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           <input class="search-box" placeholder="이름·연구실·IP 검색" oninput="renderIp(this.value)" value="${q}"/>
           <button class="tool-btn accent" onclick="openAddIp()">＋ IP 등록</button>
@@ -972,30 +985,30 @@ function renderIp(q=''){
       </div>
     </div>`;
 }
+
 function openAddIp(){
   document.getElementById('im-name').value='';
   document.getElementById('im-room').value='';
   document.getElementById('im-ip').value='';
   document.getElementById('im-err').textContent='';
   document.getElementById('im-btn-save').disabled=false;
-  document.getElementById('im-btn-save').textContent='등록';
   document.getElementById('ip-modal').classList.add('open');
 }
 function closeIpModal(){document.getElementById('ip-modal').classList.remove('open');}
+
 async function saveIp(){
   const name=document.getElementById('im-name').value.trim();
   const room=document.getElementById('im-room').value.trim();
   const ip=document.getElementById('im-ip').value.trim();
   if(!name||!room||!ip){document.getElementById('im-err').textContent='모든 항목을 입력해주세요.';return;}
-  // 간단한 IP 형식 체크
   if(!/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(ip)){document.getElementById('im-err').textContent='올바른 IP 형식으로 입력해주세요. (예: 210.125.93.10)';return;}
   document.getElementById('im-btn-save').disabled=true;
-  document.getElementById('im-btn-save').textContent='등록 중...';
   const res=await apiPost({action:'addIp',name,room,ip});
-  if(res.error){document.getElementById('im-err').textContent=res.error;document.getElementById('im-btn-save').disabled=false;document.getElementById('im-btn-save').textContent='등록';return;}
+  if(res.error){document.getElementById('im-err').textContent=res.error;document.getElementById('im-btn-save').disabled=false;return;}
   allIps.push({id:res.id,name,room,ip,created_at:today()});
   closeIpModal();renderIp();
 }
+
 async function deleteIp(id,name,ip){
   if(!confirm(`${name}의 IP(${ip})를 삭제할까요?`))return;
   await apiPost({action:'deleteIp',id});
@@ -1003,16 +1016,18 @@ async function deleteIp(id,name,ip){
   renderIp();
 }
 
+function today(){return new Date().toISOString().slice(0,10);}
+
 ['seat-modal','deco-modal','log-modal','ip-modal'].forEach(id=>{
   document.getElementById(id).addEventListener('click',e=>{
-    if(e.target===document.getElementById(id)){
-      if(id==='seat-modal')closeSeatModal();
-      else if(id==='deco-modal')closeDecoModal();
-      else if(id==='ip-modal')closeIpModal();
-      else closeLogModal();
-    }
+    if(e.target!==document.getElementById(id))return;
+    if(id==='seat-modal')closeSeatModal();
+    else if(id==='deco-modal')closeDecoModal();
+    else if(id==='ip-modal')closeIpModal();
+    else closeLogModal();
   });
 });
+
 init();
 </script>
 </body>
