@@ -542,7 +542,7 @@ function renderRoom(){
     <button class="tool-btn" onclick="openDecoModal()">＋ 장식 추가</button>
     <button class="tool-btn ${delMode?'danger-mode':''}" id="del-btn" onclick="toggleDelMode()">${delMode?'✕ 삭제 모드':'요소 삭제'}</button>
   `:'';
-  const hint=IS_ADMIN?'🔧 드래그로 이동 · 클릭으로 정보 입력':'자리를 클릭해서 정보를 입력하세요.';
+  const hint=IS_ADMIN?'🔧 드래그로 이동 · 클릭으로 정보 입력':'자리를 클릭해서 정보를 입력하세요. &nbsp;|&nbsp; <a href="mailto:cseri@sungshin.ac.kr" style="color:var(--primary)">자리 변경/내용 수정이 필요한 경우 관리자에게 문의하세요. (cseri@sungshin.ac.kr)</a>';
   document.getElementById('view-main').innerHTML=`
     <div class="main-header"><h2>${curRoom}</h2><p>좌석 배치도 및 자산 정보</p></div>
     <div class="stats">
@@ -687,31 +687,45 @@ function openSeatModal(seat){
   editSeat=seat;
   const isPub=seat.seat_no.toString().startsWith('pub_');
   const isAddingPub=isPub&&seat.seat_no==='pub_new'&&IS_ADMIN;
+  const isOccupied=!isPub&&seat.user;
+  const readOnly=isOccupied&&!IS_ADMIN;
+
   document.getElementById('sm-title').textContent=isPub?`공용 박스 — ${seat.label||''}`:`${seat.seat_no}번 자리`;
-  document.getElementById('sm-sub').textContent=isPub?'자산번호를 입력하세요.':'이름과 자산번호를 모두 입력하세요.';
+  document.getElementById('sm-sub').textContent=readOnly
+    ?'자리 변경/수정이 필요한 경우 관리자에게 문의하세요.'
+    :isPub?'자산번호를 입력하세요.':'이름과 자산번호를 모두 입력하세요.';
   document.getElementById('sm-field-label').style.display=isPub?'':'none';
   document.getElementById('sm-field-user').style.display=isPub?'none':'';
   document.getElementById('sm-label').value=seat.label||'';
+  document.getElementById('sm-label').readOnly=readOnly;
   document.getElementById('sm-user').value=seat.user||'';
+  document.getElementById('sm-user').readOnly=readOnly;
   document.getElementById('sm-pc').value=seat.pc||'';
+  document.getElementById('sm-pc').readOnly=readOnly;
   document.getElementById('sm-mon').value=seat.monitor||'';
+  document.getElementById('sm-mon').readOnly=readOnly;
   document.getElementById('sm-err').textContent='';
-  document.getElementById('sm-btn-clear').style.display=(!isPub&&seat.user)?'':'none';
+  // 비우기는 관리자만
+  document.getElementById('sm-btn-clear').style.display=(isOccupied&&IS_ADMIN)?'':'none';
   document.getElementById('sm-btn-delpub').style.display=(isPub&&IS_ADMIN)?'':'none';
+  // 저장 버튼: 읽기 전용이면 숨김
+  document.getElementById('sm-btn-save').style.display=readOnly?'none':'';
   document.getElementById('sm-btn-save').textContent='저장';
   document.getElementById('sm-btn-save').onclick=saveSeat;
   const pcReq=isAddingPub?`PC 자산번호 <span style="color:var(--text3);font-weight:400">(선택)</span>`:`PC 자산번호 <span class="req">*</span>`;
   const monReq=isAddingPub?`모니터 자산번호 <span style="color:var(--text3);font-weight:400">(선택)</span>`:`모니터 자산번호 <span class="req">*</span>`;
-  document.getElementById('sm-pc-label').innerHTML=pcReq;
-  document.getElementById('sm-mon-label').innerHTML=monReq;
-  if(!IS_ADMIN&&isPub)document.getElementById('sm-sub').textContent='이름과 자산번호를 모두 입력하세요.';
-  if(!isPub){
+  document.getElementById('sm-pc-label').innerHTML=readOnly?'PC 자산번호':pcReq;
+  document.getElementById('sm-mon-label').innerHTML=readOnly?'모니터 자산번호':monReq;
+  if(!isPub&&!readOnly){
     document.getElementById('sm-pc-label').innerHTML=`PC 자산번호 <span class="req">*</span>`;
     document.getElementById('sm-mon-label').innerHTML=`모니터 자산번호 <span class="req">*</span>`;
   }
+  if(!IS_ADMIN&&isPub&&!readOnly)document.getElementById('sm-sub').textContent='이름과 자산번호를 모두 입력하세요.';
   document.getElementById('seat-modal').classList.add('open');
-  validateSeat();
-  ['sm-label','sm-user','sm-pc','sm-mon'].forEach(id=>document.getElementById(id).oninput=validateSeat);
+  if(!readOnly){
+    validateSeat();
+    ['sm-label','sm-user','sm-pc','sm-mon'].forEach(id=>document.getElementById(id).oninput=validateSeat);
+  }
 }
 
 function validateSeat(){
