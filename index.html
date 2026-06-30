@@ -981,12 +981,24 @@ async function saveSeat(){
   const s=allSeats.find(x=>x.room===curRoom&&String(x.seat_no)===String(editSeat.seat_no));
   if(s){s.user=user;s.pc=pc;s.monitor=mon;s.ip=ip;if(isPub)s.label=label;}
 
-  // IP 관리 탭에 자동 등록 (일반 자리이고 IP가 새로 입력/변경된 경우만)
-  if(!isPub && ip && ip !== (editSeat.ip||'')){
-    const already=allIps.find(x=>x.ip===ip && x.room===curRoom);
-    if(!already){
-      const ipRes=await apiPost({action:'addIp',name:user,room:curRoom,ip});
-      if(ipRes.success) allIps.push({id:ipRes.id,name:user,room:curRoom,ip,created_at:today()});
+  // IP 관리 탭에 자동 등록 (일반 자리이고 IP가 입력된 경우)
+  if(!isPub && ip){
+    console.log('[IP자동등록] 시도:', {name:user, room:curRoom, ip});
+    try{
+      const already=allIps.find(x=>x.ip===ip);
+      console.log('[IP자동등록] 기존 존재 여부:', already);
+      if(!already){
+        const ipRes=await apiPost({action:'addIp',name:user,room:curRoom,ip});
+        console.log('[IP자동등록] API 응답:', ipRes);
+        if(ipRes.success){
+          allIps.push({id:ipRes.id,name:user,room:curRoom,ip,created_at:today()});
+          console.log('[IP자동등록] 성공! allIps 길이:', allIps.length);
+        } else {
+          console.warn('[IP자동등록] 실패:', ipRes.error);
+        }
+      }
+    } catch(e){
+      console.error('[IP자동등록] 오류:', e);
     }
   }
 
