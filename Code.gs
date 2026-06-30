@@ -71,9 +71,9 @@ function doPost(e) {
 
     // ── seats ──
     if (action === 'updateSeat') {
-      // 일반 자리: user/pc/monitor 필수 / 공용 박스: label만 필수
       const isPub = String(body.seat_no).startsWith('pub_');
-      if (!isPub && (!body.user || !body.pc || !body.monitor))
+      const isEmpty = body.user===''&&body.pc===''&&body.monitor===''; // 비우기
+      if (!isPub && !isEmpty && (!body.user || !body.pc || !body.monitor))
         return respond({ error: '모든 항목을 입력해주세요.' });
       if (isPub && !body.label)
         return respond({ error: '박스 이름을 입력해주세요.' });
@@ -115,8 +115,7 @@ function doPost(e) {
       return respond({ success: true, id });
     }
     if (action === 'updateDecoLayout') {
-      // 여러 장식 위치 일괄 업데이트
-      body.decos.forEach(d => updateDecoRow(d.id, { x: d.x, y: d.y }));
+      body.decos.forEach(d => updateDecoRow(d.id, { x: d.x, y: d.y, label: d.label, type: d.type, w: d.w, h: d.h }));
       return respond({ success: true });
     }
     if (action === 'deleteDeco') {
@@ -243,8 +242,12 @@ function updateDecoRow(id, fields) {
   const values = sheet.getDataRange().getValues();
   for (let i = 1; i < values.length; i++) {
     if (values[i][0] === id) {
-      if (fields.x !== undefined) sheet.getRange(i+1, 7).setValue(fields.x);
-      if (fields.y !== undefined) sheet.getRange(i+1, 8).setValue(fields.y);
+      if (fields.type  !== undefined) sheet.getRange(i+1, 3).setValue(fields.type);
+      if (fields.label !== undefined) sheet.getRange(i+1, 4).setValue(fields.label);
+      if (fields.w     !== undefined) sheet.getRange(i+1, 5).setValue(fields.w);
+      if (fields.h     !== undefined) sheet.getRange(i+1, 6).setValue(fields.h);
+      if (fields.x     !== undefined) sheet.getRange(i+1, 7).setValue(fields.x);
+      if (fields.y     !== undefined) sheet.getRange(i+1, 8).setValue(fields.y);
       return;
     }
   }

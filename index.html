@@ -22,11 +22,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 /* ── 레이아웃 ── */
 .layout{display:flex;min-height:100vh}
 
+/* ── 모바일 헤더 (기본 숨김) ── */
+.mobile-header{display:none}
+
+/* ── 사이드바 오버레이 (기본 숨김) ── */
+.sidebar-overlay{display:none}
+
 /* ── 사이드바 ── */
 .sidebar{width:200px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
 .sidebar-header{padding:18px 14px 12px;border-bottom:1px solid var(--border)}
 .sidebar-header h1{font-size:15px;font-weight:700;color:var(--text);letter-spacing:-.3px}
 .sidebar-header p{font-size:11px;color:var(--text3);margin-top:3px}
+.sidebar-close{display:none}
 .admin-badge{display:none;font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;background:#fef9c3;color:#854d0e;border:1px solid #fde047;margin-top:6px}
 .sidebar-body{flex:1;padding:8px 0}
 .menu-section{margin-bottom:2px}
@@ -171,19 +178,133 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .deco-type-btn:hover{border-color:var(--primary)}
 .deco-type-btn.selected{border-color:var(--primary);background:var(--primary-light);color:var(--primary)}
 #view-main{width:100%}
+
+/* ════════════════════════════════════════
+   모바일 전용 스타일 (768px 이하)
+   ════════════════════════════════════════ */
+@media (max-width: 768px) {
+  body{display:block}
+
+  /* 모바일 상단 헤더 */
+  .mobile-header{
+    display:flex;align-items:center;gap:10px;
+    position:sticky;top:0;z-index:60;
+    background:var(--surface);border-bottom:1px solid var(--border);
+    padding:12px 14px;box-shadow:0 1px 3px rgba(0,0,0,.04);
+  }
+  .hamburger-btn{
+    width:36px;height:36px;flex-shrink:0;border:none;background:var(--bg);
+    border-radius:8px;display:flex;align-items:center;justify-content:center;
+    cursor:pointer;font-size:18px;color:var(--text)
+  }
+  .mobile-header-title{flex:1;min-width:0}
+  .mobile-header-title h1{font-size:14px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mobile-header-title p{font-size:10px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mobile-admin-badge{display:none;font-size:9px;font-weight:700;padding:2px 7px;border-radius:999px;background:#fef9c3;color:#854d0e;border:1px solid #fde047;flex-shrink:0}
+
+  /* 사이드바 오버레이 */
+  .sidebar-overlay{
+    display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);
+    z-index:90;opacity:0;transition:opacity .25s
+  }
+  .sidebar-overlay.open{display:block;opacity:1}
+
+  /* 사이드바 → 슬라이드 패널 */
+  .layout{display:block}
+  .sidebar{
+    position:fixed;top:0;left:0;height:100vh;width:78vw;max-width:300px;
+    transform:translateX(-100%);transition:transform .28s ease;
+    z-index:100;box-shadow:4px 0 24px rgba(0,0,0,.15)
+  }
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-close{
+    display:flex;align-items:center;justify-content:center;
+    width:30px;height:30px;border:none;background:var(--bg);border-radius:8px;
+    font-size:16px;color:var(--text2);cursor:pointer;flex-shrink:0
+  }
+  .sidebar-header{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+
+  /* 메뉴 글씨/터치 영역 확대 */
+  .menu-section-btn{padding:13px 16px;font-size:14px}
+  .menu-item{padding:12px 16px 12px 30px;font-size:14px}
+  .menu-item .seat-count{font-size:12px}
+
+  /* 메인 영역 */
+  .main{padding:14px}
+  .main-header h2{font-size:17px}
+  .main-header p{font-size:11px}
+
+  /* 통계 카드 */
+  .stats{grid-template-columns:repeat(3,1fr);gap:6px}
+  .stat{padding:10px 6px}
+  .stat-val{font-size:18px}
+  .stat-lbl{font-size:9.5px}
+
+  /* 툴바 */
+  .toolbar{gap:6px}
+  .tool-btn{font-size:11px;padding:7px 10px}
+  .hint{display:block;width:100%;font-size:10.5px;margin-bottom:4px}
+
+  /* 배치도 캔버스: 가로 스크롤 보장 */
+  .canvas-wrap{padding:14px 10px;-webkit-overflow-scrolling:touch}
+  .seat{width:104px;padding:8px 9px}
+  .seat-label{font-size:12px}
+  .seat-type{font-size:8.5px}
+
+  /* 공지 패널 */
+  .notice-panel{padding:14px}
+  .notice-panel-title{font-size:13px}
+  .nc-list li{font-size:12.5px}
+
+  /* 카드키 테이블: 가로 스크롤 + 줄바꿈 방지 */
+  .key-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:var(--radius-sm)}
+  .key-table{min-width:480px}
+  .key-table th,.key-table td{white-space:nowrap;padding:8px 12px;font-size:12.5px}
+
+  /* 전체 현황 */
+  .ov-grid{grid-template-columns:repeat(2,1fr)}
+  .ov-card{padding:12px}
+
+  /* 로그/IP 테이블 */
+  .log-toolbar{flex-direction:column;align-items:stretch}
+  .log-toolbar h3{font-size:13px}
+  .search-box{width:100%}
+  .log-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .log-table{min-width:640px}
+
+  /* 모달 */
+  .modal{width:90vw;padding:20px}
+}
 </style>
 </head>
 <body>
+
+<!-- 모바일 전용 상단 헤더 -->
+<div class="mobile-header">
+  <button class="hamburger-btn" onclick="openSidebar()">☰</button>
+  <div class="mobile-header-title">
+    <h1>연구실 관리</h1>
+    <p>미융기/융보공 대학원 · 프라임관</p>
+  </div>
+  <span id="mobile-admin-badge" class="mobile-admin-badge">🔧 관리자</span>
+</div>
+
+<!-- 모바일 사이드바 오버레이 -->
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
 <div class="layout">
 
   <!-- ── 사이드바 ── -->
-  <div class="sidebar">
+  <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
-      <h1>연구실 관리</h1>
-      <p>미융기/융보공 대학원 · 프라임관</p>
-      <div id="admin-badge" class="admin-badge">🔧 관리자 모드</div>
-      <button id="save-btn" style="display:none;margin-top:6px;width:100%;font-size:11px;font-weight:700;padding:6px 10px;border-radius:8px;border:none;background:var(--primary);color:#fff;cursor:pointer;transition:all .15s" onclick="saveAll()">💾 변경사항 저장</button>
-      <div id="save-status" style="display:none;font-size:10px;color:var(--green);margin-top:4px;text-align:center"></div>
+      <div>
+        <h1>연구실 관리</h1>
+        <p>미융기/융보공 대학원 · 프라임관</p>
+        <div id="admin-badge" class="admin-badge">🔧 관리자 모드</div>
+        <button id="save-btn" style="display:none;margin-top:6px;width:100%;font-size:11px;font-weight:700;padding:6px 10px;border-radius:8px;border:none;background:var(--primary);color:#fff;cursor:pointer;transition:all .15s" onclick="saveAll()">💾 변경사항 저장</button>
+        <div id="save-status" style="display:none;font-size:10px;color:var(--green);margin-top:4px;text-align:center"></div>
+      </div>
+      <button class="sidebar-close" onclick="closeSidebar()">✕</button>
     </div>
 
     <div class="sidebar-body">
@@ -377,6 +498,16 @@ function roomDecos(r){return allDecos.filter(d=>d.room===r);}
 async function apiFetch(p){const r=await fetch(API_URL+'?'+new URLSearchParams(p),{credentials:'omit'});return r.json();}
 async function apiPost(b){const r=await fetch(API_URL,{method:'POST',body:JSON.stringify(b),credentials:'omit'});return r.json();}
 
+// ── 모바일 사이드바 토글 ──
+function openSidebar(){
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('sidebar-overlay').classList.add('open');
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('open');
+}
+
 // ── 메뉴 ──
 function toggleMenu(id){
   const el=document.getElementById(id);
@@ -397,7 +528,11 @@ function showView(type, viewId, clickedEl, roomName){
     else if(viewId==='v-ip') renderIp();
   }
   else if(type==='remote') renderRemote();
+
+  // 모바일에서는 메뉴 선택 시 사이드바 자동 닫기
+  if(window.innerWidth<=768) closeSidebar();
 }
+
 
 // ── 초기화 ──
 async function saveAll(){
@@ -435,6 +570,7 @@ async function init(){
   if(IS_ADMIN){
     document.getElementById('admin-badge').style.display='block';
     document.getElementById('save-btn').style.display='block';
+    document.getElementById('mobile-admin-badge').style.display='inline-block';
   }
   const d=await apiFetch({action:'getAll'});
   allSeats=d.seats||[]; allLogs=d.logs||[]; allDecos=d.decos||[]; allIps=d.ips||[];
@@ -507,6 +643,7 @@ function renderNotice(id){
       title:'카드키 / 열쇠 보관',desc:'연구실별 보관 장소 및 비밀번호',
       html:`<div class="notice-panel">
         <div class="notice-panel-title">연구실 카드키/열쇠 보관 정보</div>
+        <div class="key-table-wrap">
         <table class="key-table">
           <thead><tr><th>연구실</th><th>보관 장소 (사물함 번호)</th><th>자물쇠 비밀번호</th></tr></thead>
           <tbody>
@@ -520,6 +657,7 @@ function renderNotice(id){
             <tr><td>프 703호</td><td>상시 개방</td><td>상시 개방</td></tr>
           </tbody>
         </table>
+        </div>
       </div>`
     },
     'v-net':{
