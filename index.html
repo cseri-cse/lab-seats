@@ -887,11 +887,13 @@ function onDM(e){
 
 async function onDE(){
   if(!dragging)return;
+  console.log('[onDE] dragMoved:', dragMoved, 'seat:', dragging.obj);
   dragging.el.classList.remove('dragging');
   if(!dragMoved){
     if(dragging.isDeco)openDecoEditModal(dragging.id);
     else{
       const isPub=dragging.id.toString().startsWith('pub_');
+      console.log('[onDE] 클릭 처리 - isPub:', isPub, 'delMode:', delMode);
       if(delMode&&isPub)await deletePubDirect(dragging.obj);
       else openSeatModal(dragging.obj);
     }
@@ -927,6 +929,7 @@ async function deletePubDirect(seat){
 
 // ── 자리 모달 ──
 function openSeatModal(seat){
+  console.log('[openSeatModal] 호출됨, seat:', seat);
   editSeat=seat;
   const isPub=seat.seat_no.toString().startsWith('pub_');
   const isAddingPub=isPub&&seat.seat_no==='pub_new'&&IS_ADMIN;
