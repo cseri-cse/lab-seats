@@ -418,6 +418,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <label id="sm-mon-label">모니터 자산번호</label>
       <input id="sm-mon" placeholder="예: 2021-0908-0019 또는 2024-22-202-00017-1"/>
     </div>
+    <div class="field" id="sm-field-dual" style="display:flex;align-items:center;gap:6px;margin-top:-6px">
+      <input type="checkbox" id="sm-dual" onchange="onDualToggle()" style="width:auto"/>
+      <label for="sm-dual" style="margin:0;font-weight:500;cursor:pointer">듀얼 모니터 사용</label>
+    </div>
+    <div class="field" id="sm-field-mon2" style="display:none">
+      <label id="sm-mon2-label">모니터 2 자산번호</label>
+      <input id="sm-mon2" placeholder="예: 2021-0908-0019 또는 2024-22-202-00017-1"/>
+    </div>
     <div class="field" id="sm-field-ip" style="display:none">
       <label id="sm-ip-label">IP 주소</label>
       <input id="sm-ip" placeholder="예: 210.125.93.10"/>
@@ -657,7 +665,7 @@ function renderNotice(id){
         <ul class="nc-list">
           <li>연구실 별 좌석 배치도를 확인하고, 본인 자리의 정보를 채워주세요.</li>
           <li>자산 스티커가 없는 경우 <strong>(-)</strong> 로 표시해주시기 바랍니다.</li>
-          <li>자산이 두 개인 경우 <strong>" / "</strong> 로 구분하여 자산 번호 모두 기입 바랍니다.</li>
+          <li>듀얼 모니터 사용 시 <strong>"듀얼 모니터 사용"</strong> 체크 후 모니터 1, 2 자산번호를 각각 기입해주세요.</li>
           <li>공용 PC 기입이 필요한 경우 <a href="mailto:cseri@sungshin.ac.kr">cseri@sungshin.ac.kr</a> 로 연구실(호실명), 서버이름(관리자 이름) 정보를 전달해주시면 작성 가능하도록 생성해드리겠습니다.</li>
           <li class="warn">자산 임의 이동 불가</li>
         </ul>
@@ -926,6 +934,23 @@ function openSeatModal(seat){
   document.getElementById('sm-ip').value=seat.ip||'';
   document.getElementById('sm-ip').readOnly=readOnly;
   document.getElementById('sm-field-ip').style.display=isPub?'none':'';
+
+  // 듀얼 모니터 처리: 모니터 값에 "/"가 있으면 둘로 분리
+  document.getElementById('sm-field-dual').style.display=isPub?'none':'flex';
+  document.getElementById('sm-field-mon2').style.display='none';
+  document.getElementById('sm-dual').checked=false;
+  document.getElementById('sm-dual').disabled=readOnly;
+  document.getElementById('sm-mon2').value='';
+  document.getElementById('sm-mon2').readOnly=readOnly;
+  if(!isPub && seat.monitor && seat.monitor.includes('/')){
+    const parts=seat.monitor.split('/').map(s=>s.trim());
+    document.getElementById('sm-mon').value=parts[0]||'';
+    document.getElementById('sm-mon2').value=parts[1]||'';
+    document.getElementById('sm-dual').checked=true;
+    document.getElementById('sm-field-mon2').style.display='';
+    document.getElementById('sm-mon-label').innerHTML=`모니터 1 자산번호 <span class="req">*</span>`;
+  }
+
   document.getElementById('sm-err').textContent='';
   // 비우기는 관리자만
   document.getElementById('sm-btn-clear').style.display=(isOccupied&&IS_ADMIN)?'':'none';
@@ -951,6 +976,16 @@ function openSeatModal(seat){
   }
 }
 
+function onDualToggle(){
+  const checked=document.getElementById('sm-dual').checked;
+  document.getElementById('sm-field-mon2').style.display=checked?'':'none';
+  document.getElementById('sm-mon-label').innerHTML=checked
+    ? `모니터 1 자산번호 <span class="req">*</span>`
+    : `모니터 자산번호 <span class="req">*</span>`;
+  if(!checked) document.getElementById('sm-mon2').value='';
+  validateSeat();
+}
+
 function validateSeat(){
   const isPub=editSeat&&editSeat.seat_no.toString().startsWith('pub_');
   const isAddingPub=isPub&&editSeat.seat_no==='pub_new'&&IS_ADMIN;
@@ -959,7 +994,10 @@ function validateSeat(){
   const p=document.getElementById('sm-pc').value.trim();
   const m=document.getElementById('sm-mon').value.trim();
   const ip=document.getElementById('sm-ip').value.trim();
-  document.getElementById('sm-btn-save').disabled=isAddingPub?!l:isPub?!(l&&p&&m):!(u&&p&&m&&ip);
+  const isDual=document.getElementById('sm-dual').checked;
+  const m2=document.getElementById('sm-mon2').value.trim();
+  const monOk=isDual?(m&&m2):m;
+  document.getElementById('sm-btn-save').disabled=isAddingPub?!l:isPub?!(l&&p&&m):!(u&&p&&monOk&&ip);
 }
 
 function closeSeatModal(){document.getElementById('seat-modal').classList.remove('open');editSeat=null;}
@@ -969,10 +1007,14 @@ async function saveSeat(){
   const label=document.getElementById('sm-label').value.trim();
   const user=document.getElementById('sm-user').value.trim();
   const pc=document.getElementById('sm-pc').value.trim();
-  const mon=document.getElementById('sm-mon').value.trim();
   const ip=document.getElementById('sm-ip').value.trim();
+  const isDual=document.getElementById('sm-dual').checked;
+  const mon1=document.getElementById('sm-mon').value.trim();
+  const mon2=document.getElementById('sm-mon2').value.trim();
+  const mon=(!isPub&&isDual) ? `${mon1} / ${mon2}` : mon1;
   if(isPub&&!label){document.getElementById('sm-err').textContent='박스 이름을 입력해주세요.';return;}
-  if(!isPub&&(!user||!pc||!mon||!ip)){document.getElementById('sm-err').textContent='모든 항목을 입력해주세요.';return;}
+  if(!isPub&&isDual&&(!mon1||!mon2)){document.getElementById('sm-err').textContent='모니터 1, 2 자산번호를 모두 입력해주세요.';return;}
+  if(!isPub&&(!user||!pc||!mon1||!ip)){document.getElementById('sm-err').textContent='모든 항목을 입력해주세요.';return;}
   if(!isPub&&ip&&!/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(ip)){document.getElementById('sm-err').textContent='올바른 IP 형식으로 입력해주세요. (예: 210.125.93.10)';return;}
   document.getElementById('sm-btn-save').disabled=true;
   document.getElementById('sm-btn-save').textContent='저장 중...';
