@@ -836,14 +836,21 @@ function setupClickOnly(){
 function snap(v){return Math.round(v/GRID)*GRID;}
 function pt(e){return e.touches?{x:e.touches[0].clientX,y:e.touches[0].clientY}:{x:e.clientX,y:e.clientY};}
 
+let globalDragListenersAdded=false;
+
 function setupDrag(){
   if(!canvasEl)return;
+  // mousedown/touchstart는 canvasEl이 바뀔 때마다 다시 등록 (정상)
   canvasEl.addEventListener('mousedown',onDS);
   canvasEl.addEventListener('touchstart',onDS,{passive:false});
-  document.addEventListener('mousemove',onDM);
-  document.addEventListener('touchmove',onDM,{passive:false});
-  document.addEventListener('mouseup',onDE);
-  document.addEventListener('touchend',onDE);
+  // mousemove/mouseup/touchmove/touchend는 document 전역이라 한 번만 등록
+  if(!globalDragListenersAdded){
+    document.addEventListener('mousemove',onDM);
+    document.addEventListener('touchmove',onDM,{passive:false});
+    document.addEventListener('mouseup',onDE);
+    document.addEventListener('touchend',onDE);
+    globalDragListenersAdded=true;
+  }
 }
 
 const DRAG_THRESHOLD = 5; // 픽셀 단위 - 이보다 적게 움직이면 클릭으로 처리
