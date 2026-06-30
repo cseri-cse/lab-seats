@@ -846,6 +846,9 @@ function setupDrag(){
   document.addEventListener('touchend',onDE);
 }
 
+const DRAG_THRESHOLD = 5; // 픽셀 단위 - 이보다 적게 움직이면 클릭으로 처리
+let dragStartX=0, dragStartY=0;
+
 function onDS(e){
   const el=e.target.closest('.seat,.deco');if(!el||e.target.classList.contains('deco-del'))return;
   e.preventDefault();dragMoved=false;
@@ -854,12 +857,18 @@ function onDS(e){
   let obj=isDeco?allDecos.find(d=>d.id===id):allSeats.find(x=>x.room===curRoom&&String(x.seat_no)===String(id));
   const r=canvasEl.getBoundingClientRect(),p=pt(e);
   dragOffX=p.x-r.left-(obj.x||0);dragOffY=p.y-r.top-(obj.y||0);
-  dragging={id,el,obj,isDeco};el.classList.add('dragging');
+  dragStartX=p.x;dragStartY=p.y;
+  dragging={id,el,obj,isDeco};
 }
 
 function onDM(e){
-  if(!dragging)return;e.preventDefault();dragMoved=true;
-  const r=canvasEl.getBoundingClientRect(),p=pt(e);
+  if(!dragging)return;
+  const p=pt(e);
+  const movedDist=Math.hypot(p.x-dragStartX,p.y-dragStartY);
+  if(movedDist<DRAG_THRESHOLD)return; // 임계값 이하 움직임은 무시 (클릭으로 처리)
+  e.preventDefault();
+  if(!dragMoved){dragMoved=true;dragging.el.classList.add('dragging');}
+  const r=canvasEl.getBoundingClientRect();
   let nx=snap(Math.max(0,p.x-r.left-dragOffX));
   let ny=snap(Math.max(0,p.y-r.top-dragOffY));
   dragging.obj.x=nx;dragging.obj.y=ny;
