@@ -31,7 +31,7 @@ const ROOM_CONFIG = {
 const REMOTE_ROOM = '프라임관 703';
 const SEAT_W = 124, SEAT_H = 86, GAP = 14, COLS = 4;
 
-const SEATS_HEADERS = ['room', 'seat_no', 'label', 'user', 'pc', 'monitor', 'x', 'y'];
+const SEATS_HEADERS = ['room', 'seat_no', 'label', 'user', 'pc', 'monitor', 'x', 'y', 'ip'];
 const LOGS_HEADERS  = ['id', 'name', 'lab', 'contact', 'pc_asset', 'start_date', 'end_date', 'memo', 'created_at'];
 const DECOS_HEADERS = ['id', 'room', 'type', 'label', 'w', 'h', 'x', 'y'];
 const IPS_HEADERS   = ['id', 'name', 'room', 'ip', 'created_at'];
@@ -73,11 +73,11 @@ function doPost(e) {
     if (action === 'updateSeat') {
       const isPub = String(body.seat_no).startsWith('pub_');
       const isEmpty = body.user===''&&body.pc===''&&body.monitor===''; // 비우기
-      if (!isPub && !isEmpty && (!body.user || !body.pc || !body.monitor))
+      if (!isPub && !isEmpty && (!body.user || !body.pc || !body.monitor || !body.ip))
         return respond({ error: '모든 항목을 입력해주세요.' });
       if (isPub && !body.label)
         return respond({ error: '박스 이름을 입력해주세요.' });
-      updateSeatRow(body.room, body.seat_no, { user: body.user||'', pc: body.pc||'', monitor: body.monitor||'', label: body.label });
+      updateSeatRow(body.room, body.seat_no, { user: body.user||'', pc: body.pc||'', monitor: body.monitor||'', label: body.label, ip: body.ip||'' });
       return respond({ success: true });
     }
     if (action === 'updateLayout') {
@@ -153,7 +153,7 @@ function readAllSeats() {
   if (values.length <= 1) return [];
   return values.slice(1).map(row => ({
     room: row[0], seat_no: row[1], label: row[2],
-    user: row[3], pc: row[4], monitor: row[5], x: row[6], y: row[7],
+    user: row[3], pc: row[4], monitor: row[5], x: row[6], y: row[7], ip: row[8] || '',
   }));
 }
 function updateSeatRow(room, seatNo, fields) {
@@ -167,6 +167,7 @@ function updateSeatRow(room, seatNo, fields) {
       if (fields.monitor !== undefined) sheet.getRange(i+1, 6).setValue(fields.monitor);
       if (fields.x       !== undefined) sheet.getRange(i+1, 7).setValue(fields.x);
       if (fields.y       !== undefined) sheet.getRange(i+1, 8).setValue(fields.y);
+      if (fields.ip       !== undefined) sheet.getRange(i+1, 9).setValue(fields.ip);
       return;
     }
   }
@@ -371,4 +372,19 @@ function initIpsOnly() {
   ipsSheet.getRange(1,1,1,IPS_HEADERS.length).setFontWeight('bold').setBackground('#cfe2f3');
   ipsSheet.setFrozenRows(1);
   Logger.log('ips 시트 생성 완료!');
+}
+
+// ─────────────────────────────────────────
+// [추가] 기존 seats 시트에 ip 컬럼만 추가
+// (기존 데이터는 그대로 두고 I열에 헤더만 추가)
+// ─────────────────────────────────────────
+function addIpColumnToSeats() {
+  const sheet = getSheet(SEATS_SHEET);
+  const lastCol = sheet.getLastColumn();
+  if (lastCol < 9) {
+    sheet.getRange(1, 9).setValue('ip').setFontWeight('bold').setBackground('#e8eaf6');
+    Logger.log('ip 컬럼 추가 완료!');
+  } else {
+    Logger.log('이미 ip 컬럼이 있습니다.');
+  }
 }

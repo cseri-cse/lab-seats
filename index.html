@@ -418,6 +418,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <label id="sm-mon-label">모니터 자산번호</label>
       <input id="sm-mon" placeholder="예: 2021-0908-0019 또는 2024-22-202-00017-1"/>
     </div>
+    <div class="field" id="sm-field-ip" style="display:none">
+      <label id="sm-ip-label">IP 주소</label>
+      <input id="sm-ip" placeholder="예: 210.125.93.10"/>
+    </div>
     <div class="err-msg" id="sm-err"></div>
     <div class="modal-actions">
       <button class="btn danger" id="sm-btn-clear" onclick="clearSeat()" style="display:none">비우기</button>
@@ -919,6 +923,9 @@ function openSeatModal(seat){
   document.getElementById('sm-pc').readOnly=readOnly;
   document.getElementById('sm-mon').value=seat.monitor||'';
   document.getElementById('sm-mon').readOnly=readOnly;
+  document.getElementById('sm-ip').value=seat.ip||'';
+  document.getElementById('sm-ip').readOnly=readOnly;
+  document.getElementById('sm-field-ip').style.display=isPub?'none':'';
   document.getElementById('sm-err').textContent='';
   // 비우기는 관리자만
   document.getElementById('sm-btn-clear').style.display=(isOccupied&&IS_ADMIN)?'':'none';
@@ -934,12 +941,13 @@ function openSeatModal(seat){
   if(!isPub&&!readOnly){
     document.getElementById('sm-pc-label').innerHTML=`PC 자산번호 <span class="req">*</span>`;
     document.getElementById('sm-mon-label').innerHTML=`모니터 자산번호 <span class="req">*</span>`;
+    document.getElementById('sm-ip-label').innerHTML=`IP 주소 <span class="req">*</span>`;
   }
   if(!IS_ADMIN&&isPub&&!readOnly)document.getElementById('sm-sub').textContent='이름과 자산번호를 모두 입력하세요.';
   document.getElementById('seat-modal').classList.add('open');
   if(!readOnly){
     validateSeat();
-    ['sm-label','sm-user','sm-pc','sm-mon'].forEach(id=>document.getElementById(id).oninput=validateSeat);
+    ['sm-label','sm-user','sm-pc','sm-mon','sm-ip'].forEach(id=>document.getElementById(id).oninput=validateSeat);
   }
 }
 
@@ -950,7 +958,8 @@ function validateSeat(){
   const u=document.getElementById('sm-user').value.trim();
   const p=document.getElementById('sm-pc').value.trim();
   const m=document.getElementById('sm-mon').value.trim();
-  document.getElementById('sm-btn-save').disabled=isAddingPub?!l:isPub?!(l&&p&&m):!(u&&p&&m);
+  const ip=document.getElementById('sm-ip').value.trim();
+  document.getElementById('sm-btn-save').disabled=isAddingPub?!l:isPub?!(l&&p&&m):!(u&&p&&m&&ip);
 }
 
 function closeSeatModal(){document.getElementById('seat-modal').classList.remove('open');editSeat=null;}
@@ -961,22 +970,34 @@ async function saveSeat(){
   const user=document.getElementById('sm-user').value.trim();
   const pc=document.getElementById('sm-pc').value.trim();
   const mon=document.getElementById('sm-mon').value.trim();
+  const ip=document.getElementById('sm-ip').value.trim();
   if(isPub&&!label){document.getElementById('sm-err').textContent='박스 이름을 입력해주세요.';return;}
-  if(!isPub&&(!user||!pc||!mon)){document.getElementById('sm-err').textContent='모든 항목을 입력해주세요.';return;}
+  if(!isPub&&(!user||!pc||!mon||!ip)){document.getElementById('sm-err').textContent='모든 항목을 입력해주세요.';return;}
+  if(!isPub&&ip&&!/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(ip)){document.getElementById('sm-err').textContent='올바른 IP 형식으로 입력해주세요. (예: 210.125.93.10)';return;}
   document.getElementById('sm-btn-save').disabled=true;
   document.getElementById('sm-btn-save').textContent='저장 중...';
-  const res=await apiPost({action:'updateSeat',room:curRoom,seat_no:editSeat.seat_no,label,user,pc,monitor:mon});
+  const res=await apiPost({action:'updateSeat',room:curRoom,seat_no:editSeat.seat_no,label,user,pc,monitor:mon,ip});
   if(res.error){document.getElementById('sm-err').textContent=res.error;document.getElementById('sm-btn-save').disabled=false;document.getElementById('sm-btn-save').textContent='저장';return;}
   const s=allSeats.find(x=>x.room===curRoom&&String(x.seat_no)===String(editSeat.seat_no));
-  if(s){s.user=user;s.pc=pc;s.monitor=mon;if(isPub)s.label=label;}
+  if(s){s.user=user;s.pc=pc;s.monitor=mon;s.ip=ip;if(isPub)s.label=label;}
+
+  // IP 관리 탭에 자동 등록 (일반 자리이고 IP가 새로 입력/변경된 경우만)
+  if(!isPub && ip && ip !== (editSeat.ip||'')){
+    const already=allIps.find(x=>x.ip===ip && x.room===curRoom);
+    if(!already){
+      const ipRes=await apiPost({action:'addIp',name:user,room:curRoom,ip});
+      if(ipRes.success) allIps.push({id:ipRes.id,name:user,room:curRoom,ip,created_at:today()});
+    }
+  }
+
   closeSeatModal();renderSeats();if(IS_ADMIN)setupDrag();
 }
 
 async function clearSeat(){
   if(!confirm('자리를 비울까요?'))return;
-  await apiPost({action:'updateSeat',room:curRoom,seat_no:editSeat.seat_no,user:'',pc:'',monitor:''});
+  await apiPost({action:'updateSeat',room:curRoom,seat_no:editSeat.seat_no,user:'',pc:'',monitor:'',ip:''});
   const s=allSeats.find(x=>x.room===curRoom&&String(x.seat_no)===String(editSeat.seat_no));
-  if(s){s.user='';s.pc='';s.monitor='';}
+  if(s){s.user='';s.pc='';s.monitor='';s.ip='';}
   closeSeatModal();renderSeats();if(IS_ADMIN)setupDrag();
 }
 
