@@ -180,6 +180,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 /* ── 데스크탑/모바일 전환 ── */
 .mobile-only{display:none}
 .desktop-only{display:block}
+.log-table-wrap.desktop-only,.key-table-wrap.desktop-only{display:block}
 
 /* ── 모바일 레코드 카드 (로그/IP 공용) ── */
 .rec-card-list{display:flex;flex-direction:column;gap:8px;padding:12px}
@@ -469,7 +470,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="field"><label>사용자 이름 <span class="req">*</span></label><input id="im-name" placeholder="홍길동"/></div>
     <div class="field">
       <label>연구실 <span class="req">*</span></label>
-      <select id="im-room" onchange="onIpRoomChange()">
+      <select id="im-room">
         <option value="">선택하세요</option>
         <option>프라임관 101</option><option>프라임관 102</option>
         <option>프라임관 206</option><option>프라임관 207</option>
@@ -477,13 +478,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <option>프라임관 702</option><option>프라임관 703</option>
       </select>
     </div>
-    <div class="field" id="im-field-seat" style="display:none">
-      <label>자리 번호 <span class="req">*</span></label>
-      <select id="im-seat" onchange="onIpSeatChange()">
-        <option value="">선택하세요</option>
-      </select>
-    </div>
-    <div class="field"><label id="im-ip-label">IP 주소 <span class="req">*</span></label><input id="im-ip" placeholder="예: 210.125.93.10"/></div>
+    <div class="field"><label>IP 주소 <span class="req">*</span></label><input id="im-ip" placeholder="예: 210.125.93.10"/></div>
     <div class="err-msg" id="im-err"></div>
     <div class="modal-actions">
       <button class="btn" onclick="closeIpModal()">취소</button>
@@ -500,7 +495,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="field"><label>사용자 이름 <span class="req">*</span></label><input id="lm-name" placeholder="홍길동"/></div>
     <div class="field"><label>소속 연구실 <span class="req">*</span></label><input id="lm-lab" placeholder="예: 김교수 연구실"/></div>
     <div class="field"><label>연락처 <span class="req">*</span></label><input id="lm-contact" placeholder="이메일 또는 전화번호"/></div>
-    <div class="field" id="lm-field-pc"><label>PC 자산번호 <span class="req">*</span></label><input id="lm-pc" placeholder="예: 2021-0908-0013"/></div>
+    <div class="field" id="lm-field-seat"><label>자리 번호 <span class="req">*</span></label>
+      <select id="lm-seat" onchange="onLogSeatChange()">
+        <option value="">선택하세요</option>
+      </select>
+    </div>
+    <div class="field" id="lm-field-pc"><label id="lm-pc-label">PC 자산번호 <span class="req">*</span></label><input id="lm-pc" placeholder="예: 2021-0908-0013"/></div>
+    <div class="field" id="lm-field-ip"><label>IP 주소 <span style="color:var(--text3);font-weight:400">(자동 입력)</span></label><input id="lm-ip" readonly/></div>
     <div class="field"><label>사용 시작일 <span class="req">*</span></label><input id="lm-start" type="date"/></div>
     <div class="field"><label>사용 종료일 <span class="req">*</span></label><input id="lm-end" type="date"/></div>
     <div class="field"><label>메모 <span style="color:var(--text3);font-weight:400">(선택)</span></label><textarea id="lm-memo"></textarea></div>
@@ -1134,15 +1135,49 @@ function renderRemote(q=''){
 
 
 
+// ── 703호 자리 ↔ IP 매핑 (1~30번, 128.134.238.201~230) ──
+function remoteSeatIp(seatNo){
+  return '128.134.238.' + (200 + parseInt(seatNo));
+}
+
+function fillSeatOptions(excludeLogId){
+  // memo에 [N번/IP] 형태로 저장된 자리번호를 파싱해서 사용중인 자리 추출
+  const usedSeats=new Set(
+    allLogs
+      .filter(l=>!l.end_date || l.end_date >= today())
+      .filter(l=>l.id!==excludeLogId)
+      .map(l=>{
+        const m=(l.memo||'').match(/^\[(\d+)번/);
+        return m?m[1]:null;
+      })
+      .filter(Boolean)
+  );
+  const sel=document.getElementById('lm-seat');
+  sel.innerHTML='<option value="">선택하세요</option>';
+  for(let i=1;i<=30;i++){
+    const used=usedSeats.has(String(i));
+    sel.innerHTML+=`<option value="${i}" ${used?'disabled':''}>${i}번 자리 ${used?'(사용 중)':''}</option>`;
+  }
+}
+
+function onLogSeatChange(){
+  const seatNo=document.getElementById('lm-seat').value;
+  document.getElementById('lm-ip').value=seatNo?remoteSeatIp(seatNo):'';
+}
+
 function openAddLog(){
   editLogId=null;
   document.getElementById('lm-title').textContent='프라임관 703 사용 등록';
+  document.getElementById('lm-field-seat').style.display='';
   document.getElementById('lm-field-pc').style.display='';
-  ['lm-name','lm-lab','lm-contact','lm-pc','lm-memo'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('lm-field-ip').style.display='';
+  ['lm-name','lm-lab','lm-contact','lm-pc','lm-memo','lm-ip'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('lm-seat').value='';
   document.getElementById('lm-start').value=today();
   document.getElementById('lm-end').value='';
   document.getElementById('lm-err').textContent='';
   document.getElementById('lm-btn-save').textContent='등록';
+  fillSeatOptions(null);
   document.getElementById('log-modal').classList.add('open');
 }
 
@@ -1150,7 +1185,9 @@ function openEditLog(id){
   const log=allLogs.find(l=>l.id===id);if(!log)return;
   editLogId=id;
   document.getElementById('lm-title').textContent='사용 기록 수정';
+  document.getElementById('lm-field-seat').style.display='none';
   document.getElementById('lm-field-pc').style.display='none';
+  document.getElementById('lm-field-ip').style.display='none';
   document.getElementById('lm-name').value=log.name;
   document.getElementById('lm-lab').value=log.lab;
   document.getElementById('lm-contact').value=log.contact;
@@ -1184,11 +1221,15 @@ async function saveLog(){
     if(res.error){document.getElementById('lm-err').textContent=res.error;document.getElementById('lm-btn-save').disabled=false;return;}
     const l=allLogs.find(x=>x.id===editLogId);if(l){l.end_date=end;l.memo=memo;}
   } else {
+    const seatNo=document.getElementById('lm-seat').value;
+    const ip=document.getElementById('lm-ip').value;
+    if(!seatNo){document.getElementById('lm-err').textContent='자리 번호를 선택해주세요.';return;}
     if(!name||!lab||!contact||!pc||!start||!end){document.getElementById('lm-err').textContent='모든 필수 항목을 입력해주세요.';return;}
     document.getElementById('lm-btn-save').disabled=true;
-    const res=await apiPost({action:'addLog',name,lab,contact,pc_asset:pc,start_date:start,end_date:end,memo});
+    const memoWithIp=memo?`[${seatNo}번/${ip}] ${memo}`:`[${seatNo}번/${ip}]`;
+    const res=await apiPost({action:'addLog',name,lab,contact,pc_asset:pc,start_date:start,end_date:end,memo:memoWithIp});
     if(res.error){document.getElementById('lm-err').textContent=res.error;document.getElementById('lm-btn-save').disabled=false;return;}
-    allLogs.push({id:res.id,name,lab,contact,pc_asset:pc,start_date:start,end_date:end,memo,created_at:today()});
+    allLogs.push({id:res.id,name,lab,contact,pc_asset:pc,start_date:start,end_date:end,memo:memoWithIp,created_at:today()});
   }
   document.getElementById('lm-btn-save').disabled=false;
   closeLogModal();renderRemote();
@@ -1250,46 +1291,10 @@ function renderIp(q=''){
     </div>`;
 }
 
-// ── 703호 자리 ↔ IP 매핑 (1~30번, 128.134.238.201~230) ──
-function remoteSeatIp(seatNo){
-  return '128.134.238.' + (200 + parseInt(seatNo));
-}
-
-function onIpRoomChange(){
-  const room=document.getElementById('im-room').value;
-  const isRemote=room==='프라임관 703';
-  document.getElementById('im-field-seat').style.display=isRemote?'':'none';
-  document.getElementById('im-ip-label').innerHTML=isRemote
-    ? `IP 주소 <span style="color:var(--text3);font-weight:400">(자동 입력)</span>`
-    : `IP 주소 <span class="req">*</span>`;
-  document.getElementById('im-ip').readOnly=isRemote;
-  document.getElementById('im-ip').value='';
-
-  if(isRemote){
-    // 이미 사용 중인 IP 목록 (128.134.238.201~230 중)
-    const usedIps=new Set(allIps.filter(x=>x.room==='프라임관 703').map(x=>x.ip));
-    const sel=document.getElementById('im-seat');
-    sel.innerHTML='<option value="">선택하세요</option>';
-    for(let i=1;i<=30;i++){
-      const ip=remoteSeatIp(i);
-      const used=usedIps.has(ip);
-      sel.innerHTML+=`<option value="${i}" ${used?'disabled':''}>${i}번 자리 ${used?'(사용 중)':''}</option>`;
-    }
-  }
-}
-
-function onIpSeatChange(){
-  const seatNo=document.getElementById('im-seat').value;
-  document.getElementById('im-ip').value=seatNo?remoteSeatIp(seatNo):'';
-}
-
 function openAddIp(){
   document.getElementById('im-name').value='';
   document.getElementById('im-room').value='';
   document.getElementById('im-ip').value='';
-  document.getElementById('im-ip').readOnly=false;
-  document.getElementById('im-ip-label').innerHTML=`IP 주소 <span class="req">*</span>`;
-  document.getElementById('im-field-seat').style.display='none';
   document.getElementById('im-err').textContent='';
   document.getElementById('im-btn-save').disabled=false;
   document.getElementById('ip-modal').classList.add('open');
@@ -1300,8 +1305,6 @@ async function saveIp(){
   const name=document.getElementById('im-name').value.trim();
   const room=document.getElementById('im-room').value.trim();
   const ip=document.getElementById('im-ip').value.trim();
-  const isRemote=room==='프라임관 703';
-  if(isRemote && !document.getElementById('im-seat').value){document.getElementById('im-err').textContent='자리 번호를 선택해주세요.';return;}
   if(!name||!room||!ip){document.getElementById('im-err').textContent='모든 항목을 입력해주세요.';return;}
   if(!/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(ip)){document.getElementById('im-err').textContent='올바른 IP 형식으로 입력해주세요. (예: 210.125.93.10)';return;}
   document.getElementById('im-btn-save').disabled=true;
