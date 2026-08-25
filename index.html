@@ -655,13 +655,6 @@ function renderNotice(id){
           <li>연구실 좌석 및 집기 배치는 공간 활용도, 동선, 전기·네트워크 환경 등을 종합적으로 고려하여 구성원 모두가 동등하게 공간을 사용할 수 있도록 결정하였으며, 이에 따라 아래 사항을 준수하여 주시기 바랍니다.</li>
           <li class="warn">책상, 파티션, 서랍 등 연구실 집기의 임의 이동 및 구조 변경은 불가하다.</li>
           <li>공간 구조 및 집기 배치와 관련된 개선 의견은 학기 단위로 취합하며, 연구원 및 교수진의 검토를 거쳐 반영 여부를 결정한다.</li>
-          <li style="margin-top:6px"><strong>(3) 지정 좌석 / 공용 좌석 안내</strong></li>
-          <li style="margin-top:6px"><strong>지정 좌석</strong></li>
-          <li>출퇴근 기록(가치업 앱)이 필수이며, 학생인건비를 평균으로 지급받습니다.</li>
-          <li>배정된 좌석을 개인 전용으로 사용합니다.</li>
-          <li style="margin-top:6px"><strong>공용 좌석 (비지정석)</strong></li>
-          <li>출퇴근 기록 및 학생인건비 적용 대상이 아닌 경우 사용합니다.</li>
-          <li>특정 인원이 점유하여 사용할 수 없으며, 공용 좌석 사용 대상 구성원들과 함께 공유하여 사용합니다.</li>
         </ul>
       </div>`
     },
@@ -995,7 +988,7 @@ function openSeatModal(seat){
   document.getElementById('seat-modal').classList.add('open');
   if(!readOnly){
     validateSeat();
-    ['sm-label','sm-user','sm-pc','sm-mon','sm-ip'].forEach(id=>document.getElementById(id).oninput=validateSeat);
+    ['sm-label','sm-user','sm-pc','sm-mon','sm-mon2','sm-ip'].forEach(id=>document.getElementById(id).oninput=validateSeat);
   }
 }
 
