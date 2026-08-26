@@ -512,8 +512,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <option value="">선택하세요</option>
       </select>
     </div>
+    <div class="field" id="lm-field-custom-ip" style="display:none">
+      <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
+        <input type="checkbox" id="lm-custom-ip" onchange="onCustomIpToggle()" style="width:auto"/>
+        <span style="font-weight:500">새 IP 직접 입력 (관리자)</span>
+      </label>
+    </div>
     <div class="field" id="lm-field-pc"><label id="lm-pc-label">PC 자산번호 <span class="req">*</span></label><input id="lm-pc" placeholder="예: 2021-0908-0013"/></div>
-    <div class="field" id="lm-field-ip"><label>IP 주소 <span style="color:var(--text3);font-weight:400">(자동 입력)</span></label><input id="lm-ip" readonly/></div>
+    <div class="field" id="lm-field-ip"><label id="lm-ip-label">IP 주소 <span style="color:var(--text3);font-weight:400">(자동 입력)</span></label><input id="lm-ip" readonly/></div>
     <div class="field"><label>사용 시작일 <span class="req">*</span></label><input id="lm-start" type="date"/></div>
     <div class="field"><label>사용 종료일 <span class="req">*</span></label><input id="lm-end" type="date"/></div>
     <div class="field"><label>메모 <span style="color:var(--text3);font-weight:400">(선택)</span></label><textarea id="lm-memo"></textarea></div>
@@ -1211,7 +1217,7 @@ function renderRemote(q=''){
         <h3>사용 기록 <span style="font-weight:400;color:var(--text3);font-size:12px">총 ${allLogs.length}건</span></h3>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           <input class="search-box" placeholder="이름·연구실·자산번호 검색" oninput="renderRemote(this.value)" value="${q}"/>
-          ${IS_ADMIN?`<button class="tool-btn accent" onclick="openAddLog()">＋ 사용 등록</button>`:''}
+          <button class="tool-btn accent" onclick="openAddLog()">＋ 사용 등록</button>
         </div>
       </div>
       <div class="log-table-wrap desktop-only">
@@ -1262,14 +1268,40 @@ function openAddLog(){
   document.getElementById('lm-field-seat').style.display='';
   document.getElementById('lm-field-pc').style.display='';
   document.getElementById('lm-field-ip').style.display='';
+  document.getElementById('lm-field-custom-ip').style.display=IS_ADMIN?'':'none';
+  document.getElementById('lm-custom-ip').checked=false;
+  document.getElementById('lm-ip').readOnly=true;
+  document.getElementById('lm-ip-label').innerHTML=`IP 주소 <span style="color:var(--text3);font-weight:400">(자동 입력)</span>`;
   ['lm-name','lm-lab','lm-contact','lm-pc','lm-memo','lm-ip'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('lm-seat').value='';
   document.getElementById('lm-start').value=today();
   document.getElementById('lm-end').value='';
   document.getElementById('lm-err').textContent='';
   document.getElementById('lm-btn-save').textContent='등록';
+  document.getElementById('lm-btn-save').disabled=false;
   fillSeatOptions(null);
   document.getElementById('log-modal').classList.add('open');
+}
+
+function onCustomIpToggle(){
+  const checked=document.getElementById('lm-custom-ip').checked;
+  const ipInput=document.getElementById('lm-ip');
+  if(checked){
+    // 직접 입력 모드: 자리 선택 숨기고, IP 직접 입력
+    document.getElementById('lm-field-seat').style.display='none';
+    ipInput.readOnly=false;
+    ipInput.value='';
+    ipInput.placeholder='예: 128.134.238.250';
+    document.getElementById('lm-ip-label').innerHTML=`IP 주소 <span class="req">*</span>`;
+  } else {
+    // 자리 선택 모드로 복원
+    document.getElementById('lm-field-seat').style.display='';
+    ipInput.readOnly=true;
+    ipInput.value='';
+    ipInput.placeholder='';
+    document.getElementById('lm-ip-label').innerHTML=`IP 주소 <span style="color:var(--text3);font-weight:400">(자동 입력)</span>`;
+    document.getElementById('lm-seat').value='';
+  }
 }
 
 function openEditLog(id){
@@ -1315,12 +1347,16 @@ async function saveLog(){
     if(res.error){document.getElementById('lm-err').textContent=res.error;document.getElementById('lm-btn-save').disabled=false;return;}
     const l=allLogs.find(x=>x.id===editLogId);if(l){l.end_date=end;l.memo=memo;}
   } else {
+    const isCustomIp=IS_ADMIN && document.getElementById('lm-custom-ip').checked;
     const seatNo=document.getElementById('lm-seat').value;
     const ip=document.getElementById('lm-ip').value;
-    if(!seatNo){document.getElementById('lm-err').textContent='자리 번호를 선택해주세요.';return;}
+    if(!isCustomIp && !seatNo){document.getElementById('lm-err').textContent='자리 번호를 선택해주세요.';return;}
+    if(isCustomIp && !ip){document.getElementById('lm-err').textContent='IP 주소를 입력해주세요.';return;}
     if(!name||!lab||!contact||!pc||!start||!end){document.getElementById('lm-err').textContent='모든 필수 항목을 입력해주세요.';return;}
     document.getElementById('lm-btn-save').disabled=true;
-    const memoWithIp=memo?`[${seatNo}번/${ip}] ${memo}`:`[${seatNo}번/${ip}]`;
+    const memoWithIp=isCustomIp
+      ? (memo?`[${ip}] ${memo}`:`[${ip}]`)
+      : (memo?`[${seatNo}번/${ip}] ${memo}`:`[${seatNo}번/${ip}]`);
     const res=await apiPost({action:'addLog',name,lab,contact,pc_asset:pc,start_date:start,end_date:end,memo:memoWithIp});
     if(res.error){document.getElementById('lm-err').textContent=res.error;document.getElementById('lm-btn-save').disabled=false;return;}
     allLogs.push({id:res.id,name,lab,contact,pc_asset:pc,start_date:start,end_date:end,memo:memoWithIp,created_at:today()});
