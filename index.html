@@ -1311,6 +1311,7 @@ function openEditLog(id){
   document.getElementById('lm-field-seat').style.display='none';
   document.getElementById('lm-field-pc').style.display='none';
   document.getElementById('lm-field-ip').style.display='none';
+  document.getElementById('lm-field-custom-ip').style.display='none';
   document.getElementById('lm-name').value=log.name;
   document.getElementById('lm-lab').value=log.lab;
   document.getElementById('lm-contact').value=log.contact;
@@ -1320,9 +1321,8 @@ function openEditLog(id){
   document.getElementById('lm-err').textContent='';
   document.getElementById('lm-btn-save').textContent='저장';
   document.getElementById('lm-btn-save').disabled=false;
-  ['lm-name','lm-lab','lm-contact','lm-start'].forEach(id=>document.getElementById(id).readOnly=true);
-  // 수정 가능 필드 readOnly 해제
-  ['lm-end','lm-memo'].forEach(id=>document.getElementById(id).readOnly=false);
+  // 모든 필드 수정 가능
+  ['lm-name','lm-lab','lm-contact','lm-start','lm-end','lm-memo'].forEach(id=>document.getElementById(id).readOnly=false);
   document.getElementById('log-modal').classList.add('open');
 }
 
@@ -1343,9 +1343,10 @@ async function saveLog(){
   if(editLogId){
     if(!end){document.getElementById('lm-err').textContent='사용 종료일을 입력해주세요.';return;}
     document.getElementById('lm-btn-save').disabled=true;
-    const res=await apiPost({action:'updateLog',id:editLogId,end_date:end,memo});
+    const res=await apiPost({action:'updateLog',id:editLogId,name,lab,contact,start_date:start,end_date:end,memo});
     if(res.error){document.getElementById('lm-err').textContent=res.error;document.getElementById('lm-btn-save').disabled=false;return;}
-    const l=allLogs.find(x=>x.id===editLogId);if(l){l.end_date=end;l.memo=memo;}
+    const l=allLogs.find(x=>x.id===editLogId);
+    if(l){l.name=name;l.lab=lab;l.contact=contact;l.start_date=start;l.end_date=end;l.memo=memo;}
   } else {
     const isCustomIp=IS_ADMIN && document.getElementById('lm-custom-ip').checked;
     const seatNo=document.getElementById('lm-seat').value;
