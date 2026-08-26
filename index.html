@@ -1211,7 +1211,7 @@ function renderRemote(q=''){
         <h3>사용 기록 <span style="font-weight:400;color:var(--text3);font-size:12px">총 ${allLogs.length}건</span></h3>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           <input class="search-box" placeholder="이름·연구실·자산번호 검색" oninput="renderRemote(this.value)" value="${q}"/>
-          <button class="tool-btn accent" onclick="openAddLog()">＋ 사용 등록</button>
+          ${IS_ADMIN?`<button class="tool-btn accent" onclick="openAddLog()">＋ 사용 등록</button>`:''}
         </div>
       </div>
       <div class="log-table-wrap desktop-only">
@@ -1287,7 +1287,10 @@ function openEditLog(id){
   document.getElementById('lm-memo').value=log.memo||'';
   document.getElementById('lm-err').textContent='';
   document.getElementById('lm-btn-save').textContent='저장';
+  document.getElementById('lm-btn-save').disabled=false;
   ['lm-name','lm-lab','lm-contact','lm-start'].forEach(id=>document.getElementById(id).readOnly=true);
+  // 수정 가능 필드 readOnly 해제
+  ['lm-end','lm-memo'].forEach(id=>document.getElementById(id).readOnly=false);
   document.getElementById('log-modal').classList.add('open');
 }
 
