@@ -104,7 +104,7 @@ function doPost(e) {
     }
     if (action === 'updateLog') {
       if (!body.id) return respond({ error: 'id가 필요합니다.' });
-      updateLogRow(body.id, { end_date: body.end_date, memo: body.memo });
+      updateLogRow(body.id, { name: body.name, lab: body.lab, contact: body.contact, start_date: body.start_date, end_date: body.end_date, memo: body.memo });
       return respond({ success: true });
     }
 
@@ -212,8 +212,12 @@ function updateLogRow(id, fields) {
   const values = sheet.getDataRange().getValues();
   for (let i = 1; i < values.length; i++) {
     if (values[i][0] === id) {
-      if (fields.end_date !== undefined) sheet.getRange(i+1, 7).setValue(fields.end_date);
-      if (fields.memo     !== undefined) sheet.getRange(i+1, 8).setValue(fields.memo);
+      if (fields.name       !== undefined) sheet.getRange(i+1, 2).setValue(fields.name);
+      if (fields.lab        !== undefined) sheet.getRange(i+1, 3).setValue(fields.lab);
+      if (fields.contact    !== undefined) sheet.getRange(i+1, 4).setValue(fields.contact);
+      if (fields.start_date !== undefined) sheet.getRange(i+1, 6).setValue(fields.start_date);
+      if (fields.end_date   !== undefined) sheet.getRange(i+1, 7).setValue(fields.end_date);
+      if (fields.memo       !== undefined) sheet.getRange(i+1, 8).setValue(fields.memo);
       return;
     }
   }
