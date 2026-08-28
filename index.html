@@ -75,15 +75,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .nc-list li a:hover{text-decoration:underline}
 
 /* ── 카드키 테이블 ── */
-.key-table{width:100%;border-collapse:collapse;font-size:13px;border:1px solid var(--border)}
-.key-table th{text-align:center;padding:9px 12px;color:var(--text2);font-weight:700;font-size:12px;border-bottom:2px solid var(--border);border-right:1px solid var(--border);background:#f5f6fa}
+.key-table{width:100%;border-collapse:collapse;font-size:13px;border:2px solid #c8cad4}
+.key-table th{text-align:center;padding:10px 12px;color:var(--text2);font-weight:700;font-size:12px;border-bottom:2px solid #c8cad4;border-right:1px solid #dde0ea;background:#f2f3f7}
 .key-table th:last-child{border-right:none}
-.key-table td{padding:9px 12px;border-bottom:1.5px solid var(--border);border-right:1px solid var(--border);color:var(--text);vertical-align:middle}
+.key-table td{padding:9px 12px;border-bottom:1px solid #e4e6ef;border-right:1px solid #e4e6ef;color:var(--text);vertical-align:middle}
+.key-table td:first-child{color:var(--text)!important;font-weight:500}
 .key-table td:last-child{border-right:none;color:var(--text3);font-size:11.5px}
-.key-table tr:last-child td{border-bottom:none}
-.key-table td.group-a{background:#f8f9ff}
-.key-table td.group-b{background:#fff}
-.key-table tr:hover td{background:#eef0fb!important}
+.key-table td.group-a{background:#fff}
+.key-table td.group-b{background:#f7f8fc}
+.key-table .group-sep td{border-top:2.5px solid #b0b4c8}
+.key-table tr:hover td{background:#eef0f8!important}
 
 /* ── 통계 ── */
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
@@ -701,18 +702,18 @@ function renderNotice(id){
         <table class="key-table">
           <thead><tr><th>연구실</th><th>보관 장소 (사물함 번호)</th><th>자물쇠 비밀번호</th><th>비고</th></tr></thead>
           <tbody>
-            <tr><td class="group-a">프 101호</td><td class="group-a" rowspan="2" style="text-align:center;vertical-align:middle">47</td><td class="group-a" rowspan="2" style="text-align:center;vertical-align:middle">1348</td><td class="group-a" rowspan="2"></td></tr>
+            <tr class="group-sep"><td class="group-a">프 101호</td><td class="group-a" rowspan="2" style="text-align:center;vertical-align:middle">47</td><td class="group-a" rowspan="2" style="text-align:center;vertical-align:middle">1348</td><td class="group-a" rowspan="2"></td></tr>
             <tr><td class="group-a">프 102호</td></tr>
-            <tr><td class="group-b">프 206호</td><td class="group-b" rowspan="2" style="text-align:center;vertical-align:middle">열쇠 보관함</td><td class="group-b" rowspan="2" style="text-align:center;vertical-align:middle">0827</td><td class="group-b" rowspan="2" style="vertical-align:middle">* 열쇠 보관함 비밀번호 오류 시, 열쇠보관함의 마스터키 연구원에게 문의바랍니다.</td></tr>
+            <tr class="group-sep"><td class="group-b">프 206호</td><td class="group-b" rowspan="2" style="text-align:center;vertical-align:middle">열쇠 보관함</td><td class="group-b" rowspan="2" style="text-align:center;vertical-align:middle">0827</td><td class="group-b" rowspan="2" style="vertical-align:middle">* 열쇠 보관함 비밀번호 오류 시, 열쇠보관함의 마스터키 연구원에게 문의바랍니다.</td></tr>
             <tr><td class="group-b">프 207호</td></tr>
-            <tr><td class="group-a">프 602호</td><td class="group-a" rowspan="3" style="text-align:center;vertical-align:middle">101</td><td class="group-a" rowspan="3" style="text-align:center;vertical-align:middle">-</td><td class="group-a" rowspan="3"></td></tr>
+            <tr class="group-sep"><td class="group-a">프 602호</td><td class="group-a" rowspan="3" style="text-align:center;vertical-align:middle">101</td><td class="group-a" rowspan="3" style="text-align:center;vertical-align:middle">-</td><td class="group-a" rowspan="3"></td></tr>
             <tr><td class="group-a">프 603호</td></tr>
             <tr><td class="group-a">프 604호</td></tr>
-            <tr><td class="group-b">프 702호</td><td class="group-b" style="text-align:center">상시 개방</td><td class="group-b" style="text-align:center">상시 개방</td><td class="group-b"></td></tr>
-            <tr><td class="group-a">프 702호 SDR 실습실</td><td class="group-a" style="text-align:center">7</td><td class="group-a" style="text-align:center">2457</td><td class="group-a"></td></tr>
-            <tr><td class="group-b">프 703호 원격 PC실</td><td class="group-b" style="text-align:center">상시 개방</td><td class="group-b" style="text-align:center">상시 개방</td><td class="group-b"></td></tr>
-            <tr><td class="group-a">프 310호 서버실</td><td class="group-a" style="text-align:center">담당자 보관</td><td class="group-a" style="text-align:center">-</td><td class="group-a">담당자 : 심혜연 / 상황실 연락하여 개방 가능합니다. (02-920-2171)</td></tr>
-            <tr><td class="group-b">프 501호</td><td class="group-b" style="text-align:center">57</td><td class="group-b" style="text-align:center">1238</td><td class="group-b">물품 수령/기자재 대여 시 연구원 부재중일 경우에만 활용해주세요.</td></tr>
+            <tr class="group-sep"><td class="group-b">프 702호</td><td class="group-b" style="text-align:center">상시 개방</td><td class="group-b" style="text-align:center">상시 개방</td><td class="group-b"></td></tr>
+            <tr class="group-sep"><td class="group-a">프 702호 SDR 실습실</td><td class="group-a" style="text-align:center">7</td><td class="group-a" style="text-align:center">2457</td><td class="group-a"></td></tr>
+            <tr class="group-sep"><td class="group-b">프 703호 원격 PC실</td><td class="group-b" style="text-align:center">상시 개방</td><td class="group-b" style="text-align:center">상시 개방</td><td class="group-b"></td></tr>
+            <tr class="group-sep"><td class="group-a">프 310호 서버실</td><td class="group-a" style="text-align:center">담당자 보관</td><td class="group-a" style="text-align:center">-</td><td class="group-a">담당자 : 심혜연 / 상황실 연락하여 개방 가능합니다. (02-920-2171)</td></tr>
+            <tr class="group-sep"><td class="group-b">프 501호</td><td class="group-b" style="text-align:center">57</td><td class="group-b" style="text-align:center">1238</td><td class="group-b">물품 수령/기자재 대여 시 연구원 부재중일 경우에만 활용해주세요.</td></tr>
           </tbody>
         </table>
         </div>
